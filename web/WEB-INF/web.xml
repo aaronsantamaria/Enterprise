@@ -8,6 +8,10 @@
         <servlet-name>ServeltTwo</servlet-name>
         <servlet-class>com.ServeltTwo</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ServletFour</servlet-name>
+        <servlet-class>com.ServletFour</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>ServletOne</servlet-name>
         <url-pattern>/ServletOne</url-pattern>
@@ -15,6 +19,10 @@
     <servlet-mapping>
         <servlet-name>ServeltTwo</servlet-name>
         <url-pattern>/ServeltTwo</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ServletFour</servlet-name>
+        <url-pattern>/ServletFour</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
