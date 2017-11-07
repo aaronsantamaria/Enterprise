@@ -4,9 +4,17 @@
         <servlet-name>ServletOne</servlet-name>
         <servlet-class>com.ServletOne</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ServeltTwo</servlet-name>
+        <servlet-class>com.ServeltTwo</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>ServletOne</servlet-name>
         <url-pattern>/ServletOne</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ServeltTwo</servlet-name>
+        <url-pattern>/ServeltTwo</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
