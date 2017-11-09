@@ -13,9 +13,9 @@
     </head>
     <body>
         <h1>Hello World!</h1>
-        <form action="http://google.com">
+        <form action="userLogin.jsp">
         <input type="submit" value="Login as User" />
-        <input type="submit" value="Login as Admin"
+        <input type="submit" value="Login as Admin"/>
 </form>
     </body>
 </html>
