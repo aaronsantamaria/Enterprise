@@ -44,8 +44,9 @@ public class ServletOne extends HttpServlet {
 //            out.println("</html>");
 //        }
 
-        RequestDispatcher veiw = request.getRequestDispatcher("testJSP.jsp");
-        veiw.forward(request, response);
+        //RequestDispatcher view = request.getRequestDispatcher("testJSP.jsp");
+        RequestDispatcher v = request.getRequestDispatcher("login.jsp");
+        v.forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
