@@ -9,13 +9,19 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>Making Claims</title>
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <h1>Welcome!!!</h1>
         <form action="userLogin.jsp">
-        <input type="submit" value="Login as User" />
-        <input type="submit" value="Login as Admin"/>
-</form>
+            <input type="submit" value="Login as User" />
+        </form>
+        <form action="adminLogin.jsp">
+            <input type="submit" value="Login as Admin"/>
+        </form>
+        
+        Don't have an account?
+        Click <a href="registration.jsp">here</a> to register.
+
     </body>
 </html>
