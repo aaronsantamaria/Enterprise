@@ -104,7 +104,7 @@ public class DatabaseController  {
                 bool = true;
             }
         } catch (SQLException ex) {
-            Logger.getLogger(model.Jdbc.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(model.Jdbc.class.getName()).log(Level.SEVERE, null, ex);
         }
         return bool;
     }
