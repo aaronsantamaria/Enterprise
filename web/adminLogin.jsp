@@ -14,15 +14,25 @@
     <body>
         <h1>Administrator</h1>
         <form action="adminDashboard.jsp">
-            <div class="container">
-                <label><b>Username</b></label>
-                <input type="text" placeholder="Enter Username" name="uname" required/>
-
-                <label><b>Password</b></label>
-                <input type="password" placeholder="Enter Password" name="psw" required/>
-
-                <button type="submit">Login</button>   
-            </div>
+            <centre>
+                <table>
+                    <tr>
+                        <th></th>
+                        <th>Please provide your Administrator details</th>
+                    </tr>
+                    <tr>
+                        <td>Username:</td>
+                        <td><input type="text" name="username"/></td>
+                    </tr>
+                    <tr>
+                        <td>Password:</td>
+                        <td><input type="password" name="password"/></td>
+                    </tr>
+                    <tr>
+                        <td> <input type="submit" value="Login>"/></td>
+                    </tr>
+                </table>
+            </centre>
         </form>
     </body>
 </html>

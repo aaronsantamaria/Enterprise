@@ -13,24 +13,26 @@
     </head>
     <body>
         <h1>User</h1>
-        <form method="POST" action="userDashboard.jsp">     
-            <table>
-                <tr>
-                    <th></th>
-                    <th>Please provide your following details</th>
-                </tr>
-                <tr>
-                    <td>Username:</td>
-                    <td><input type="text" name="username"/></td>
-                </tr>
-                <tr>
-                    <td>Password:</td>
-                    <td><input type="password" name="password"/></td>
-                </tr>
-                <tr>
-                    <td> <input type="submit" value="Login>"/></td>
-                </tr>
-            </table>
+        <form method="POST" action="userDashboard.jsp">    
+            <centre>
+                <table>
+                    <tr>
+                        <th></th>
+                        <th>Please provide your following details</th>
+                    </tr>
+                    <tr>
+                        <td>Username:</td>
+                        <td><input type="text" name="username"/></td>
+                    </tr>
+                    <tr>
+                        <td>Password:</td>
+                        <td><input type="password" name="password"/></td>
+                    </tr>
+                    <tr>
+                        <td> <input type="submit" value="Login>"/></td>
+                    </tr>
+                </table>
+            </centre>
         </form>   
     </body>
 </html>
