@@ -9,20 +9,28 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>Login as User</title>
     </head>
     <body>
-        <h1>User Login Page</h1>
-        <form action="userDashboard.jsp">
-            <div class="container">
-                <label><b>Username</b></label>
-                <input type="text" placeholder="Enter Username" name="uname" required/>
-
-                <label><b>Password</b></label>
-                <input type="password" placeholder="Enter Password" name="psw" required/>
-
-                <button type="submit">Login</button>   
-            </div>
-        </form>
+        <h1>User</h1>
+        <form method="POST" action="userDashboard.jsp">     
+            <table>
+                <tr>
+                    <th></th>
+                    <th>Please provide your following details</th>
+                </tr>
+                <tr>
+                    <td>Username:</td>
+                    <td><input type="text" name="username"/></td>
+                </tr>
+                <tr>
+                    <td>Password:</td>
+                    <td><input type="password" name="password"/></td>
+                </tr>
+                <tr>
+                    <td> <input type="submit" value="Login>"/></td>
+                </tr>
+            </table>
+        </form>   
     </body>
 </html>
