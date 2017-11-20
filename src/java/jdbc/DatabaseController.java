@@ -119,9 +119,30 @@ public class DatabaseController  {
                 payarray[i][3] = resultSet.getString("type_of_payment");
                 payarray[i][4] = resultSet.getString("amount");
                 payarray[i][5] = resultSet.getString("date");
+                i++;
             }
         }
         return payarray;
+    }
+    public String[][] ListClaims(String member_id) throws SQLException{
+        String[][] claimarray = new String[100][6];
+        int i =1;
+        String query = "select id, mem_id, rationale, amount, date, status from CLAIMS";
+        statement = connection.createStatement();
+        resultSet = statement.executeQuery(query);
+        while(resultSet.next()){
+            String id = resultSet.getString("mem_id");
+            if(member_id == id){
+                claimarray[i][1] = resultSet.getString("id");;
+                claimarray[i][2] = id;
+                claimarray[i][3] = resultSet.getString("rationale");
+                claimarray[i][4] = resultSet.getString("amount");
+                claimarray[i][5] = resultSet.getString("date");
+                claimarray[i][6] = resultSet.getString("status");
+                i++;
+            }
+        }
+        return claimarray;
     }
     private void select(String query){
         //Statement statement = null;
@@ -150,3 +171,4 @@ public class DatabaseController  {
         return bool;
     }
 }
+
