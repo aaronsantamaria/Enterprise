@@ -8,10 +8,10 @@ package com;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -21,9 +21,9 @@ import jdbc.DatabaseController;
 
 /**
  *
- * @author aaronsantamaria
+ * @author chigolumobikile
  */
-public class ServletOne extends HttpServlet {
+public class UserServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -36,25 +36,42 @@ public class ServletOne extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String qry = "select * from USERS";
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        String qry = "select username,password from USERS";
+
+        Connection conn = null;
         HttpSession session = request.getSession();
 
-        response.setContentType("text/html;charset=UTF-8");
-//        try (PrintWriter out = response.getWriter()) {
-//            /* TODO output your page here. You may use following sample code. */
-//            out.println("<!DOCTYPE html>");
-//            out.println("<html>");
-//            out.println("<head>");
-//            out.println("<title>Servlet ServletOne</title>");            
-//            out.println("</head>");
-//            out.println("<body>");
-//            out.println("<h1>Servlet ServletOne at " + request.getContextPath() + "</h1>");
-//            out.println("</body>");
-//            out.println("</html>");
-//        }
-        //RequestDispatcher view = request.getRequestDispatcher("testJSP.jsp");
-        RequestDispatcher v = request.getRequestDispatcher("homepage.jsp");
-        v.forward(request, response);
+        try {
+            //Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("org.apache.derby.jdbc.ClientDriver");
+            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/Claims", "esd", "esd");
+            System.out.println(conn.toString());
+        } catch (ClassNotFoundException | SQLException e) {
+            System.out.println(e);
+        }
+
+        //response.setContentType("text/html;charset=UTF-8");
+        DatabaseController db = new DatabaseController();
+        db.connect(conn);
+        session.setAttribute("dbname", db);
+
+        if (conn == null) {
+            request.getRequestDispatcher("connErr.jsp").forward(request, response);
+        }
+        //request.getRequestDispatcher("connErr.jsp").forward(request, response);
+        if (db.exists(request.getParameter("username"),request.getParameter("password"))) {
+            if(!(request.getParameter("username").equalsIgnoreCase("admin")) && !(request.getParameter("password").equalsIgnoreCase("admin"))){
+            request.getRequestDispatcher("userDashboard.jsp").forward(request, response);
+            }else{
+                request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
+            }
+        } else {
+            request.getRequestDispatcher("connErr.jsp").forward(request, response);
+            // out.println("username or password incorrect");
+        }
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -84,6 +101,7 @@ public class ServletOne extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
+
     }
 
     /**

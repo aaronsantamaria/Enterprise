@@ -13,7 +13,7 @@
     </head>
     <body>
         <h1>Administrator</h1>
-        <form action="adminDashboard.jsp">
+        <form method="POST" action="${pageContext.request.contextPath}/UserServlet" >
             <centre>
                 <table>
                     <tr>

@@ -3,8 +3,9 @@
     Created on : Nov 9, 2017, 3:27:58 PM
     Author     : chigolumobikile
 --%>
+<%@page import = "jdbc.DatabaseController"%>
+<%@page contentType="text/html" pageEncoding="UTF-8" %>
 
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -13,7 +14,8 @@
     </head>
     <body>
         <h1>User</h1>
-        <form method="POST" action="userDashboard.jsp">    
+
+        <form method="POST" action="${pageContext.request.contextPath}/UserServlet" >    
             <centre>
                 <table>
                     <tr>
@@ -33,6 +35,6 @@
                     </tr>
                 </table>
             </centre>
-        </form>   
-    </body>
+        </form> 
+        
 </html>
