@@ -29,9 +29,9 @@ public class DatabaseController {
     Statement statement = null;
     ResultSet resultSet = null;
     int ClaimID = 4;
-    int claimIndex = 4;
+    int PaymentID = 16;
     String member_ID = null;
-    PreparedStatement ps = null;
+
 
     public DatabaseController() {
     }
@@ -40,14 +40,27 @@ public class DatabaseController {
         connection = con;
     }
 
-    public boolean NewClaim(String rationale, int amount) {
-        PreparedStatement ps = null;
+    PreparedStatement ps = null;
+    
+//    public static void main(){
+//        if (NewClaim("car", 50.0)){
+//            System.out.println("claim made");
+//        }
+//        else{
+//            System.out.println("claim not made");
+//        }
+//    }
+    
+    public boolean NewClaim(String rationale, Double amount) {
+
+      PreparedStatement ps = null;
 
         try {
             ps = connection.prepareStatement("INSERT INTO CLAIMS , values (?, ?, ?, ?, ?, ?)");
-            ps.setInt(2, ClaimID);
-            ps.setString(3, member_ID);
-            ps.setString(4, "date");
+            ps.setInt(1, ClaimID);
+            ps.setString(2, member_ID);
+            ps.setString(3, "date"); 
+            ps.setString(4, rationale);
             ps.setString(5, "pending");
             ps.setDouble(6, amount);
             ps.execute();
@@ -55,7 +68,6 @@ public class DatabaseController {
             ps.close();
             System.out.println("claim added.");
             ClaimID++;
-            claimIndex++;
             return true;
         } catch (SQLException ex) {
             System.out.println("SQL exception");
@@ -100,7 +112,87 @@ public class DatabaseController {
     }//makeHtmlTable
 
     private void select(String query) {
-        //Statement statement = null;
+
+      public Boolean NewPayment(String type, double amount){
+        
+        try {
+            ps = connection.prepareStatement("INSERT INTO PAYMENTS , values (?, ?, ?, ?, ?, ?)");
+            ps.setInt(1, PaymentID);
+            ps.setString(2, member_ID);
+            ps.setString(3, type);
+            ps.setDouble(4, amount); 
+            ps.setString(5, "date");
+            ps.setString(6, "time");
+            ps.execute();
+            
+
+            ps.close();
+            System.out.println("payment added.");
+            PaymentID++;
+            return true;
+        } catch (SQLException ex) {
+            System.out.println("SQL exception");
+            return false;
+        }
+        
+    }
+    public Double CheckBalance(String member_id) throws SQLException{
+        
+        String query = "select id, balance from MEMBERS";
+        Double memBalance = null;
+        statement = connection.createStatement();
+        resultSet = statement.executeQuery(query);
+        while(resultSet.next()){
+            String id = resultSet.getString("id");
+            Double balance = resultSet.getDouble("balance");
+            if(id == member_id){
+                memBalance = balance;
+            }
+        }
+        return memBalance;  
+    }
+    public String[][] ListPayment(String member_id) throws SQLException{
+        int i =1;
+        String[][] payarray = new String[100][5];
+        String query = "select id, mem_id, type_of_payment, amount, date from PAYMENTS";
+        statement = connection.createStatement();
+        resultSet = statement.executeQuery(query);
+        while(resultSet.next()){
+            String id = resultSet.getString("mem_id");
+            if(member_id == id){
+                payarray[i][1] = resultSet.getString("id");;
+                payarray[i][2] = id;
+                payarray[i][3] = resultSet.getString("type_of_payment");
+                payarray[i][4] = resultSet.getString("amount");
+                payarray[i][5] = resultSet.getString("date");
+                i++;
+            }
+        }
+        return payarray;
+    }
+    public String[][] ListClaims(String member_id) throws SQLException{
+        String[][] claimarray = new String[100][6];
+        int i =1;
+        String query = "select id, mem_id, rationale, amount, date, status from CLAIMS";
+        statement = connection.createStatement();
+        resultSet = statement.executeQuery(query);
+        while(resultSet.next()){
+            String id = resultSet.getString("mem_id");
+            if(member_id == id){
+                claimarray[i][1] = resultSet.getString("id");;
+                claimarray[i][2] = id;
+                claimarray[i][3] = resultSet.getString("rationale");
+                claimarray[i][4] = resultSet.getString("amount");
+                claimarray[i][5] = resultSet.getString("date");
+                claimarray[i][6] = resultSet.getString("status");
+                i++;
+            }
+        }
+        return claimarray;
+    }
+    private void select(String query){
+
+      //Statement statement = null;
 
         try {
             statement = connection.createStatement();
@@ -140,3 +232,4 @@ public class DatabaseController {
         return bool;
     }
 }
+
