@@ -29,7 +29,7 @@ public class ServletOneListener implements ServletContextListener {
             //Class.forName("com.mysql.jdbc.Driver");
             Class.forName("org.apache.derby.jdbc.ClientDriver");
             conn = DriverManager.getConnection("jdbc:derby://localhost:1527/"+db.trim(),"esd","esd");
-            
+            System.out.println(conn.toString());
         }
         catch(ClassNotFoundException | SQLException e){
             sc.setAttribute("error", e);
