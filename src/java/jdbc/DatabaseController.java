@@ -19,21 +19,28 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  *
  * @author alexl
  */
-public class DatabaseController  {
-    
+public class DatabaseController {
+
     Connection connection = null;
     Statement statement = null;
     ResultSet resultSet = null;
     int ClaimID = 4;
     int PaymentID = 16;
     String member_ID = null;
-    PreparedStatement ps = null; 
-    
+
+
+    public DatabaseController() {
+    }
+
+    public void connect(Connection con) {
+        connection = con;
+    }
+
+    PreparedStatement ps = null;
     
 //    public static void main(){
 //        if (NewClaim("car", 50.0)){
@@ -45,9 +52,9 @@ public class DatabaseController  {
 //    }
     
     public boolean NewClaim(String rationale, Double amount) {
-        PreparedStatement ps = null;
-        
-        
+
+      PreparedStatement ps = null;
+
         try {
             ps = connection.prepareStatement("INSERT INTO CLAIMS , values (?, ?, ?, ?, ?, ?)");
             ps.setInt(1, ClaimID);
@@ -67,7 +74,46 @@ public class DatabaseController  {
             return false;
         }
     }
-    public Boolean NewPayment(String type, double amount){
+
+    public void ApprovePayment() {
+
+    }
+
+    private ArrayList resultSetToList() throws SQLException {
+        ArrayList aList = new ArrayList();
+
+        int cols = resultSet.getMetaData().getColumnCount();
+        while (resultSet.next()) {
+            String[] s = new String[cols];
+            for (int i = 1; i <= cols; i++) {
+                s[i - 1] = resultSet.getString(i);
+            }
+            aList.add(s);
+        } // while    
+        return aList;
+    } //rsToList
+
+    private String makeTable(ArrayList list) {
+        StringBuilder b = new StringBuilder();
+        String[] row;
+        b.append("<table border=\"3\">");
+        for (Object s : list) {
+            b.append("<tr>");
+            row = (String[]) s;
+            for (String row1 : row) {
+                b.append("<td>");
+                b.append(row1);
+                b.append("</td>");
+            }
+            b.append("</tr>\n");
+        } // for
+        b.append("</table>");
+        return b.toString();
+    }//makeHtmlTable
+
+    private void select(String query) {
+
+      public Boolean NewPayment(String type, double amount){
         
         try {
             ps = connection.prepareStatement("INSERT INTO PAYMENTS , values (?, ?, ?, ?, ?, ?)");
@@ -145,25 +191,40 @@ public class DatabaseController  {
         return claimarray;
     }
     private void select(String query){
-        //Statement statement = null;
-        
+
+      //Statement statement = null;
+
         try {
             statement = connection.createStatement();
             resultSet = statement.executeQuery(query);
             //statement.close();
-        }
-        catch(SQLException e) {
-            System.out.println("way way"+e);
+        } catch (SQLException e) {
+            System.out.println("way way" + e);
             //results = e.toString();
         }
     }
-    public boolean exists(String user) {
+
+    public String retrieve(String query) throws SQLException {
+        String results = "";
+        select(query);
+
+        return makeTable(resultSetToList());
+    }
+
+    public boolean exists(String user, String pass) {
         boolean bool = false;
-        try  {
-            select("select id from users where id='"+user+"'");
-            if(resultSet.next()) {
-                System.out.println("TRUE");         
-                bool = true;
+        try {
+            ps = connection.prepareStatement("SELECT * FROM ESD.USERS where \"id\" = ?");
+            ps.setObject(1, user);
+            resultSet = ps.executeQuery();
+            //select("SELECT * FROM ESD.MEMBERS where \"id\" = '" + user + "'");
+            if (resultSet.next()) {
+                System.out.println("TRUE");
+                if (pass.equals(resultSet.getObject("password"))) {
+
+                    System.out.println(pass);
+                    bool = true;
+                }
             }
         } catch (SQLException ex) {
             //Logger.getLogger(model.Jdbc.class.getName()).log(Level.SEVERE, null, ex);
