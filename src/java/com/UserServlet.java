@@ -45,15 +45,15 @@ public class UserServlet extends HttpServlet {
         String htmlmessage = null;
         HttpSession session = request.getSession();
 
-        try {
-            //Class.forName("com.mysql.jdbc.Driver");
-            Class.forName("org.apache.derby.jdbc.ClientDriver");
-            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/Claims", "esd", "esd");
-            System.out.println(conn.toString());
-        } catch (ClassNotFoundException | SQLException e) {
-            System.out.println(e);
-        }
-
+//        try {
+//            //Class.forName("com.mysql.jdbc.Driver");
+//            Class.forName("org.apache.derby.jdbc.ClientDriver");
+//            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/Claims", "esd", "esd");
+//            System.out.println(conn.toString());
+//        } catch (ClassNotFoundException | SQLException e) {
+//            System.out.println(e);
+//        }
+        conn = (Connection)request.getServletContext().getAttribute("connection");
         //response.setContentType("text/html;charset=UTF-8");
         DatabaseController db = new DatabaseController();
         db.connect(conn);
@@ -62,7 +62,7 @@ public class UserServlet extends HttpServlet {
         if (conn == null) {
             request.getRequestDispatcher("connErr.jsp").forward(request, response);
         }
-
+      
         switch (request.getParameter("buttonaction")){
             default: 
                 request.getRequestDispatcher("userLogin.jsp").forward(request, response);
@@ -115,6 +115,7 @@ public class UserServlet extends HttpServlet {
             case "listclaim":
                 String[][] claimlist = db.ListClaims();
                 break;
+
         }
         //request.getRequestDispatcher("connErr.jsp").forward(request, response);
 
