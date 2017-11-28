@@ -43,15 +43,19 @@ public class UserServlet extends HttpServlet {
         Connection conn = null;
         HttpSession session = request.getSession();
 
-        try {
-            //Class.forName("com.mysql.jdbc.Driver");
-            Class.forName("org.apache.derby.jdbc.ClientDriver");
-            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/Claims", "esd", "esd");
-            System.out.println(conn.toString());
-        } catch (ClassNotFoundException | SQLException e) {
-            System.out.println(e);
-        }
+//        try {
+//            //Class.forName("com.mysql.jdbc.Driver");
+//            Class.forName("org.apache.derby.jdbc.ClientDriver");
+//            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/enterprise", "enterprise", "enterprise");
+//            //original name //"jdbc:derby://localhost:1527/Claims", "esd", "esd"
+//            //"jdbc:derby://localhost:1527/enterprise", "enterprise", "enterprise"
+//            //jdbc:derby://localhost:1527/enterprise [enterprise on APP]
+//            System.out.println(conn.toString());
+//        } catch (ClassNotFoundException | SQLException e) {
+//            System.out.println(e);
+//        }
 
+        conn = (Connection) request.getServletContext().getAttribute("connection");
         //response.setContentType("text/html;charset=UTF-8");
         DatabaseController db = new DatabaseController();
         db.connect(conn);
@@ -61,10 +65,10 @@ public class UserServlet extends HttpServlet {
             request.getRequestDispatcher("connErr.jsp").forward(request, response);
         }
         //request.getRequestDispatcher("connErr.jsp").forward(request, response);
-        if (db.exists(request.getParameter("username"),request.getParameter("password"))) {
-            if(!(request.getParameter("username").equalsIgnoreCase("admin")) && !(request.getParameter("password").equalsIgnoreCase("admin"))){
-            request.getRequestDispatcher("userDashboard.jsp").forward(request, response);
-            }else{
+        if (db.exists(request.getParameter("username"), request.getParameter("password"))) {
+            if (!(request.getParameter("username").equalsIgnoreCase("admin")) && !(request.getParameter("password").equalsIgnoreCase("admin"))) {
+                request.getRequestDispatcher("userDashboard.jsp").forward(request, response);
+            } else {
                 request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
             }
         } else {

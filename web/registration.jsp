@@ -14,7 +14,7 @@
     <body>
         <h1>Registration Page</h1>
 
-        <form method="POST" action="/action_page.php">    
+        <form method="POST" action="${pageContext.request.contextPath}/UserServlet">    
             <table>
                 <tr>
                     <th></th>
