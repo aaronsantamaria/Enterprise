@@ -42,7 +42,9 @@ public class UserServlet extends HttpServlet {
 
         Connection conn = null;
         String memberId = null;
+        String htmlmessage = null;
         HttpSession session = request.getSession();
+        
 
         try {
             //Class.forName("com.mysql.jdbc.Driver");
@@ -61,6 +63,12 @@ public class UserServlet extends HttpServlet {
         if (conn == null) {
             request.getRequestDispatcher("connErr.jsp").forward(request, response);
         }
+        
+        request.setAttribute("adminclaimlist", db.listClaims());
+        request.setAttribute("adminbalancelist", db.listBalance()); 
+        request.setAttribute("adminmemberlist", db.listMembers());
+        request.setAttribute("adminapplicationlist", db.listApplication());
+        
 
         switch (request.getParameter("buttonaction")){
             default: 
@@ -72,7 +80,9 @@ public class UserServlet extends HttpServlet {
                     if (!(request.getParameter("username").equalsIgnoreCase("admin")) && !(request.getParameter("password").equalsIgnoreCase("admin"))) {
                         memberId = request.getParameter("username");
                         request.getRequestDispatcher("userDashboard.jsp").forward(request, response);
-                        
+                        db.setmember(memberId);
+                        request.setAttribute("claimlist", db.ListMemberClaims());
+                        request.setAttribute("paymentlist", db.ListMemberPayment());
                     } else {
                         request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
                     }
@@ -84,26 +94,74 @@ public class UserServlet extends HttpServlet {
             case "newclaim" :
                 double claimamount = Double.parseDouble(request.getParameter("amount"));
                 String reason = request.getParameter("reason");
-                if(!db.NewClaim(reason, claimamount)){
-                    
+                if(db.NewClaim(reason, claimamount)){
+                    htmlmessage = "Claim has been added";
                 }
+                else{
+                    htmlmessage = "Error, claim has not been added";
+                }
+                request.setAttribute("message", htmlmessage);
                 break;
             case "newpayment":
                 double payamount = Double.parseDouble(request.getParameter("amount"));
                 String paytype = request.getParameter("type");
-                if(!db.NewPayment(paytype, payamount)){
-                    
+                if(db.NewPayment(paytype, payamount)){
+                    htmlmessage = "Payment has been added";
                 }
+                else {
+                    htmlmessage = "error, payment has not been added";
+                }
+                request.setAttribute("message", htmlmessage);
                 break;
             case "checkbalance":
                 double balance = db.CheckBalance();
+                htmlmessage = Double.toString(balance);
+                request.setAttribute("message", htmlmessage);
                 break;
-            case "listpayment":
-                String[][] paylist = db.ListPayment();
+            
+            case "processclaim":
+                int id = Integer.parseInt(request.getParameter("id"));
+                String status = request.getParameter("status");
+                if(db.processClaim(id, status)){
+                    htmlmessage = "Claim processed";
+                }
+                else {
+                    htmlmessage = "Error processing claim";
+                }
+                request.setAttribute("message", htmlmessage);
                 break;
-            case "listclaim":
-                String[][] claimlist = db.ListClaims();
+            case "chargesum":
+                if(db.chargeLumpsum()){
+                    htmlmessage = "lump sum charged";
+                }
+                else{
+                    htmlmessage = "error charging lump sum";
+                }
+                request.setAttribute("message", htmlmessage);
                 break;
+            case "processsapplication":
+                String applicationid = request.getParameter("appID");
+                String applicationstatus = request.getParameter("appstatus");
+                if(db.updateMembership(applicationid, applicationstatus)){
+                    htmlmessage = "application updated";
+                }
+                else {
+                    htmlmessage = "application updating failed";
+                }
+                break;
+            case "updatemember":
+                String updatememid = request.getParameter("updatememid");
+                String updatestatus = request.getParameter("updatestaus");
+                if(db.updateMembership(updatememid, updatestatus)){
+                    htmlmessage = "member updated";
+                }
+                else{
+                    htmlmessage = "member updating failed";
+                }
+                request.setAttribute("message", htmlmessage);
+                break;
+            
+            
         }
         //request.getRequestDispatcher("connErr.jsp").forward(request, response);
 
