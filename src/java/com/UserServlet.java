@@ -43,15 +43,15 @@ public class UserServlet extends HttpServlet {
         Connection conn = null;
         HttpSession session = request.getSession();
 
-        try {
-            //Class.forName("com.mysql.jdbc.Driver");
-            Class.forName("org.apache.derby.jdbc.ClientDriver");
-            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/Claims", "esd", "esd");
-            System.out.println(conn.toString());
-        } catch (ClassNotFoundException | SQLException e) {
-            System.out.println(e);
-        }
-
+//        try {
+//            //Class.forName("com.mysql.jdbc.Driver");
+//            Class.forName("org.apache.derby.jdbc.ClientDriver");
+//            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/Claims", "esd", "esd");
+//            System.out.println(conn.toString());
+//        } catch (ClassNotFoundException | SQLException e) {
+//            System.out.println(e);
+//        }
+        conn = (Connection)request.getServletContext().getAttribute("connection");
         //response.setContentType("text/html;charset=UTF-8");
         DatabaseController db = new DatabaseController();
         db.connect(conn);
@@ -60,6 +60,7 @@ public class UserServlet extends HttpServlet {
         if (conn == null) {
             request.getRequestDispatcher("connErr.jsp").forward(request, response);
         }
+  
         //request.getRequestDispatcher("connErr.jsp").forward(request, response);
         if (db.exists(request.getParameter("username"),request.getParameter("password"))) {
             if(!(request.getParameter("username").equalsIgnoreCase("admin")) && !(request.getParameter("password").equalsIgnoreCase("admin"))){
