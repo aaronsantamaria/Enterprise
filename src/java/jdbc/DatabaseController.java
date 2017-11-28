@@ -5,6 +5,7 @@
  */
 package jdbc;
 
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.Statement;
@@ -15,11 +16,12 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Time;
 import static java.sql.Types.NULL;
-import java.time.Instant;
+import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 /**
  *
  * @author alexl
@@ -32,6 +34,11 @@ public class DatabaseController {
     int ClaimID = 4;
     int PaymentID = 16;
     String member_ID = null;
+    LocalDate now = LocalDate.now();
+    String startOfYear = now.with(TemporalAdjusters.firstDayOfYear()).toString();
+    String endOfYear = now.with(TemporalAdjusters.lastDayOfYear()).toString();
+    String today = now.toString();
+    DecimalFormat df = new DecimalFormat("#.##");
 
 
     public DatabaseController() {
@@ -159,52 +166,51 @@ public class DatabaseController {
         }
         return memBalance;  
     }
-    public String[][] ListPayment(){
-        int i =1;
+    public String ListMemberPayment(){
+        String temp = null;
         String[][] payarray = new String[100][5];
         try{
-            String query = "select id, mem_id, type_of_payment, amount, date from PAYMENTS";
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(query);
-            while(resultSet.next()){
-                String id = resultSet.getString("mem_id");
-                if(member_ID == id){
-                    payarray[i][1] = resultSet.getString("id");;
-                    payarray[i][2] = id;
-                    payarray[i][3] = resultSet.getString("type_of_payment");
-                    payarray[i][4] = resultSet.getString("amount");
-                    payarray[i][5] = resultSet.getString("date");
-                    i++;
-                }
-            }
+            String query = "select * from PAYMENTS WHERE \"mem_id\" = '"+member_ID+"'";
+            select(query);
+            temp = (makeTable(rsToList()));
+//            while(resultSet.next()){
+//                String id = resultSet.getString("mem_id");
+//                if(member_ID == id){
+//                    payarray[i][1] = resultSet.getString("id");;
+//                    payarray[i][2] = id;
+//                    payarray[i][3] = resultSet.getString("type_of_payment");
+//                    payarray[i][4] = resultSet.getString("amount");
+//                    payarray[i][5] = resultSet.getString("date");
+//                    i++;
+//                }
+//            }
         }catch (SQLException ex) {
             System.out.println("SQL exception");
         }
-        return payarray;
+        return temp;
     }
-    public String[][] ListClaims() {
-        String[][] claimarray = new String[100][6];
-        int i =1;
+    public String ListMemberClaims() {
+        String temp = null;
         try{
-            String query = "select id, mem_id, rationale, amount, date, status from CLAIMS";
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(query);
-            while(resultSet.next()){
-                String id = resultSet.getString("mem_id");
-                if(member_ID == id){
-                    claimarray[i][1] = resultSet.getString("id");;
-                    claimarray[i][2] = id;
-                    claimarray[i][3] = resultSet.getString("rationale");
-                    claimarray[i][4] = resultSet.getString("amount");
-                    claimarray[i][5] = resultSet.getString("date");
-                    claimarray[i][6] = resultSet.getString("status");
-                    i++;
-                }
-            }
+            String query = "select * from PAYMENTS WHERE \"mem_id\" = '"+member_ID+"'";
+            select(query);
+            temp = (makeTable(rsToList()));
+//            while(resultSet.next()){
+//                String id = resultSet.getString("mem_id");
+//                if(member_ID == id){
+//                    claimarray[i][1] = resultSet.getString("id");;
+//                    claimarray[i][2] = id;
+//                    claimarray[i][3] = resultSet.getString("rationale");
+//                    claimarray[i][4] = resultSet.getString("amount");
+//                    claimarray[i][5] = resultSet.getString("date");
+//                    claimarray[i][6] = resultSet.getString("status");
+//                    i++;
+//                }
+//            }
         }catch (SQLException ex) {
             System.out.println("SQL exception");
         }
-        return claimarray;
+        return temp;
     }
     private void select(String query){
 
@@ -332,6 +338,168 @@ public class DatabaseController {
             //results = e.toString();
         }        
         return processed;//results;
+    }
+    public Boolean chargeLumpsum() {
+
+        PreparedStatement ps = null;
+        Boolean claimed = false;
+        double fee = calcLumpsum();
+        String query = "UPDATE members SET balance = (balance+" + fee + ") WHERE status!='APPLIED'";
+
+        if (today.equals(endOfYear)) {
+            try {
+                ps = connection.prepareStatement(query);
+                ps.executeUpdate();
+                ps.close();
+                claimed = true;
+            } catch (SQLException s) {
+                System.out.println("SQL statement is not executed! " + s.getMessage());
+            }
+        }
+        return claimed;
+    }//method
+
+    public Boolean processApplication(int id, String status) {
+
+        Boolean processed = false;
+        PreparedStatement ps = null;
+        String query = "SELECT * FROM payments'";
+        String username;
+
+        try {
+            select(query);
+            while (resultSet.next() && processed == false) {
+                if (id == resultSet.getInt("id")) {
+                    username = resultSet.getString("mem_id");
+
+                    updateMembership(username, "APPROVED");
+                    updateBalance(username, -10);
+
+                    processed = true;
+                }
+            }
+        } catch (SQLException s) {
+            System.out.println("SQL statement is not executed! " + s.getMessage());
+
+        }
+        return processed;
+    }    
+
+    public Boolean updateMembership(String memid, String status) {
+
+        Boolean updated = false;
+        PreparedStatement ps = null;
+        String queryApprove = "UPDATE members SET status ='APPROVED', dor =DATE_ADD(dor, INTERVAL 1 YEAR) WHERE id='" + memid + "'";        
+        String querySuspend = "update members set \"status\" ='SUSPENDED' WHERE id='" + memid + "'";
+
+        try {
+            if (status.equals("APPROVED")) {
+                ps = connection.prepareStatement(queryApprove);
+                ps.executeUpdate();
+                ps.close();
+                updateBalance(memid, -10);
+                updated = true;
+
+            } else if (status.equals("SUSPENDED")) {
+                ps = connection.prepareStatement(querySuspend);
+                ps.executeUpdate();
+                ps.close();
+                updated = true;
+            }
+
+        } catch (SQLException s) {
+            System.out.println("SQL statement is not executed! " + s.getMessage());
+
+        }
+        return updated;
+    }
+
+//    public Boolean chargeFee(String id) {
+//
+//        Boolean charged = false;
+//        String query = "select * from members where \"id\"= '" + id + "' and \"status\" ='APPROVED' and \"dor\" <='" + today + "'";
+//
+//        try {
+//            select(query);
+//            while (resultSet.next()) {
+//                updateMembership(id, "SUSPENDED");
+//                updateBalance(id, 10);
+//                charged = true;
+//            }
+//        } catch (SQLException s) {
+//            System.out.println("SQL statement is not executed! " + s.getMessage());
+//        }
+//        return charged;
+//    }
+
+    private void updateBalance(String username, double amount) {
+
+        PreparedStatement ps = null;
+        String queryUpdate = "UPDATE members SET \"balance\" =(\"balance\"+" + amount + ") WHERE \"id\"='" + username + "'";
+
+        try {
+            ps = connection.prepareStatement(queryUpdate);
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException s) {
+            System.out.println("SQL statement is not executed! " + s.getMessage());
+
+        }
+    }
+
+    public String listIncome() throws SQLException {
+        String results = "";
+        //Double income = 0.00;
+
+        select("select * from payments where \"date\" between '" + startOfYear + "' and '" + endOfYear + "'");
+
+        //while (resultSet.next()) {
+        //  income = income + resultSet.getDouble("amount");
+        //}
+        return makeTable(rsToList());//results;
+        //return income;
+    }//method
+
+    public String listExpense() throws SQLException {
+        String results = "";
+        //Double expense =0.00;
+
+        select("select * from claims where \"status\" ='APPROVED' and \"date\" between '" + startOfYear + "' and '" + endOfYear + "'");
+
+        //while (resultSet.next()) {
+        //  expense = expense + resultSet.getDouble("amount");
+        //}
+        return makeTable(rsToList());//results;
+        //return expense;
+    }//method
+
+    private double calcLumpsum() {
+
+        double fee = 0;
+        double total = 0;
+        double count = 0;
+
+        df.setRoundingMode(RoundingMode.FLOOR);
+        String queryCount = "select count(*) from members";
+        String querySum = "select sum(\"amount\") from claims where \"status\" ='APPROVED' and \"date\" between '" + startOfYear + "' and '" + endOfYear + "'";
+
+        try {
+            select(queryCount);
+            while (resultSet.next()) {
+                count = resultSet.getInt(1);
+            }
+            select(querySum);
+            while (resultSet.next()) {
+                total = resultSet.getDouble(1);
+            }
+
+            fee = new Double(df.format(total / count));
+
+        } catch (SQLException s) {
+            System.out.println("SQL statement is not executed! " + s.getMessage());
+        }
+        return fee;
     }
 }
 
