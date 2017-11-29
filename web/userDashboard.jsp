@@ -26,6 +26,7 @@
                      </table>
             </centre>
         </form> 
+	    
                     
                         <h2> Make a Claim </h2>
                         
