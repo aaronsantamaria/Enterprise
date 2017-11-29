@@ -28,7 +28,7 @@ public class ServletOneListener implements ServletContextListener {
         try {
             //Class.forName("com.mysql.jdbc.Driver");
             Class.forName("org.apache.derby.jdbc.ClientDriver");
-            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/"+db.trim(),"esd","esd");
+            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/"+db.trim(),"enterprise","enterprise");
             System.out.println(conn.toString());
         }
         catch(ClassNotFoundException | SQLException e){
