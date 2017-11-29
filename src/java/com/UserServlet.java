@@ -48,6 +48,7 @@ public class UserServlet extends HttpServlet {
         conn = (Connection) request.getServletContext().getAttribute("connection");
         //response.setContentType("text/html;charset=UTF-8");
         DatabaseController db = new DatabaseController();
+        db.setmember((String) session.getAttribute("memberID"));
         db.connect(conn);
         session.setAttribute("dbname", db);
         
@@ -69,10 +70,13 @@ public class UserServlet extends HttpServlet {
                 if (db.exists(request.getParameter("username"), request.getParameter("password"))) {
                     if (!(request.getParameter("username").equalsIgnoreCase("admin")) && !(request.getParameter("password").equalsIgnoreCase("admin"))) {
                         memberId = request.getParameter("username");
-                        request.getRequestDispatcher("userDashboard.jsp").forward(request, response);
-                        db.setmember(memberId);
+                        session.setAttribute("memberID", memberId);
                         request.setAttribute("claimlist", db.ListMemberClaims());
                         request.setAttribute("paymentlist", db.ListMemberPayment());
+                        request.setAttribute("outstandingbalance", Double.toString(db.CheckBalance()));
+                        request.getRequestDispatcher("userDashboard.jsp").forward(request, response);
+                        
+                        
                     } else {
                         request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
                     }
@@ -125,14 +129,17 @@ public class UserServlet extends HttpServlet {
                 //request.getRequestDispatcher("displayNewUserDetails.jsp").forward(request, response);
                 break;
             case "newclaim":
-                double claimamount = Double.parseDouble(request.getParameter("amount"));
-                String reason = request.getParameter("reason");
-                if (db.NewClaim(reason, claimamount)) {
+                String claimamount = request.getParameter("claimamount");
+                String claimreason = request.getParameter("reason");
+                if (db.NewClaim(claimreason, claimamount)) {
                     htmlmessage = "Claim has been added";
                 } else {
                     htmlmessage = "Error, claim has not been added";
                 }
                 request.setAttribute("claimmessage", htmlmessage);
+                request.setAttribute("claimlist", db.ListMemberClaims());
+                request.getRequestDispatcher("userDashboard.jsp").forward(request, response);
+                
                 break;
             case "newpayment":
                 double payamount = Double.parseDouble(request.getParameter("amount"));
@@ -143,6 +150,8 @@ public class UserServlet extends HttpServlet {
                     htmlmessage = "error, payment has not been added";
                 }
                 request.setAttribute("paymentmessage", htmlmessage);
+                request.setAttribute("paymentlist", db.ListMemberPayment());
+                request.getRequestDispatcher("userDashboard.jsp").forward(request, response);
                 break;
             
             case "checkbalance":
@@ -160,6 +169,7 @@ public class UserServlet extends HttpServlet {
                     htmlmessage = "Error processing claim";
                 }
                 request.setAttribute("processclaimmessage", htmlmessage);
+                request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
                 break;
             case "chargesum":
                 if (db.chargeLumpsum()) {
@@ -167,7 +177,8 @@ public class UserServlet extends HttpServlet {
                 } else {
                     htmlmessage = "error charging lump sum";
                 }
-                request.setAttribute("chargemessage", htmlmessage);
+                request.setAttribute("calcsummessage", htmlmessage);
+                request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
                 break;
             case "processsapplication":
                 String applicationid = request.getParameter("appID");
