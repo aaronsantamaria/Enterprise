@@ -29,7 +29,7 @@
 	    
                     
                         <h2> Make a Claim </h2>
-                        
+                        <%=(String) (request.getAttribute("claimmessage"))%>
                         <form method="POST" action="${pageContext.request.contextPath}/UserServlet" >    
                         <centre>
                         <table>
@@ -39,7 +39,7 @@
                         
                         <td>Amount of Claim: </td>
                         <td><input type="text" name="amount" style="width:150px;"/></td>
-                     
+                        <td><input type="hidden" name="buttonaction" value="newclaim"></td>
                         <td> <input type="submit" value="Submit Claim"/></td>
                         
                         </tr>

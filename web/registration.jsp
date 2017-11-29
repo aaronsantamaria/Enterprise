@@ -20,7 +20,7 @@
                     <th></th>
                     <th>Please Enter Your Details</th>
                     <th></th>
-                    <th></th>
+                    <th> </th>
                 </tr>
                 <tr>
                     <td>First Name:</td>
