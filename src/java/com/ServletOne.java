@@ -7,11 +7,17 @@ package com;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import jdbc.DatabaseController;
 
 /**
  *
@@ -30,6 +36,9 @@ public class ServletOne extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String qry = "select * from USERS";
+        HttpSession session = request.getSession();
+
         response.setContentType("text/html;charset=UTF-8");
 //        try (PrintWriter out = response.getWriter()) {
 //            /* TODO output your page here. You may use following sample code. */
@@ -43,9 +52,8 @@ public class ServletOne extends HttpServlet {
 //            out.println("</body>");
 //            out.println("</html>");
 //        }
-
         //RequestDispatcher view = request.getRequestDispatcher("testJSP.jsp");
-        RequestDispatcher v = request.getRequestDispatcher("login.jsp");
+        RequestDispatcher v = request.getRequestDispatcher("homepage.jsp");
         v.forward(request, response);
     }
 

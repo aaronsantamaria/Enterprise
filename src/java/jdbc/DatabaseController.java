@@ -36,7 +36,6 @@ public class DatabaseController {
 
     int PaymentID = 16;
     String member_ID = null;
-
     LocalDate now = LocalDate.now();
     String startOfYear = now.with(TemporalAdjusters.firstDayOfYear()).toString();
     String endOfYear = now.with(TemporalAdjusters.lastDayOfYear()).toString();
@@ -76,7 +75,6 @@ public class DatabaseController {
             ps.setDate(3, date); 
 
             ps.setString(4, rationale);
-
             ps.setString(5, "pending");
             ps.setDouble(6, amount);
             ps.execute();
@@ -261,7 +259,7 @@ public class DatabaseController {
         }
         return bool;
     }
->>>>>>> master
+
     private ArrayList rsToList() throws SQLException {
         ArrayList aList = new ArrayList();
 
@@ -293,7 +291,6 @@ public class DatabaseController {
         b.append("</table>");
         return b.toString();
     }//makeHtmlTable
-
 
     private void select(String query) {
         //Statement statement = null;
@@ -348,6 +345,7 @@ public class DatabaseController {
     }
 
 
+
     public Boolean chargeLumpsum() {
 
         PreparedStatement ps = null;
@@ -384,6 +382,7 @@ public class DatabaseController {
                     updateBalance(id, -10);
                     processed = true;
 
+
             }
         } catch (SQLException s) {
             System.out.println("SQL statement is not executed! " + s.getMessage());
@@ -396,9 +395,9 @@ public class DatabaseController {
 
         Boolean updated = false;
         PreparedStatement ps = null;
-
         String queryApprove = "update members set \"status\" ='APPROVED', \"dor\" =DATE_ADD(dor, INTERVAL 1 YEAR) where \"id\"='" + memid + "'";        
         String querySuspend = "update members set \"status\" ='SUSPENDED' where \"id\"='" + memid + "'";
+
 
         try {
             if (status.equals("APPROVED")) {
@@ -483,6 +482,7 @@ public class DatabaseController {
 //        return makeTable(rsToList());//results;
 //        //return expense;
 //    }//method
+
 
     private double calcLumpsum() {
 

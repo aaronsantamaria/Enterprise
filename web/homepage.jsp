@@ -9,10 +9,11 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Making Claims</title>
+        <title>XYZ Associations</title>
     </head>
     <body>
-        <h1>Welcome!!!</h1>
+    <center><h1>XYZ Associations</h1>
+    <h2><i>make claims easily....</i></h2>
         <form action="userLogin.jsp">
             <input type="submit" value="Login as User" />
         </form>
@@ -20,8 +21,8 @@
             <input type="submit" value="Login as Admin"/>
         </form>
         
-        Don't have an account?
+        Don't have an account?<br/>
         Click <a href="registration.jsp">here</a> to register.
-
+</center>
     </body>
 </html>
