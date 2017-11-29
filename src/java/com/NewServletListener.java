@@ -20,7 +20,7 @@ import javax.servlet.ServletContextListener;
 public class NewServletListener implements ServletContextListener {
 
     private Connection conn = null;
-    
+
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         ServletContext sc = sce.getServletContext();
@@ -40,6 +40,10 @@ public class NewServletListener implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        try { conn.close(); } catch(SQLException e) {}
+        try {
+            conn.close();
+        } catch (SQLException e) {
+        }
+
     }
 }

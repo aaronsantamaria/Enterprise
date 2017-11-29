@@ -4,268 +4,81 @@
     Author     : Jamie O'Neill
 --%>
 
+<%@page import = "jdbc.DatabaseController"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
-   <div class="container-fluid">
-	<div class="row">
-		<div class="col-md-12">
-			<h1>
-				Admin DashBoard
-			</h1>
+     <head>
+        <title></title>
+            </head>
+                <body>
+			<h1> Admin DashBoard </h1>
  
-			<h2>
-				List of all members!             
-			</h2>
+			<h2> List of all members </h2>
                         
-			<table class="table table-bordered table-condensed">
-				<thead>
-					<tr>
-						<th>
-							Name:
-						</th>
-                                                <th>
-							Outstanding Balances:
-						</th>
-                                                  <br/>
-						
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>
-							*Name one*
-						</td>
-						
-					</tr>
-					<tr class="active">
-						<td>
-							*Name two*
-						</td>
-						
-					</tr>
-					<tr class="success">
-						<td>
-							*Name three*
-						</td>
-						
-					</tr>
-					<tr class="warning">
-						<td>
-							*Name four*
-						</td>
-						
-					</tr>
-					<tr class="danger">
-						<td>
-							*Name five*
-						</td>
-					
-					</tr>
-				</tbody>
-			</table>
-                        <br/>
+                        <%=(String) (request.getAttribute("adminmemberlist"))%>
                         
+                        <h2> Suspend / Resume membership </h2>
+                        <form method="POST" action="${pageContext.request.contextPath}/UserServlet" > 
+                            
+                        <td>Enter user ID: </td>
+                        <td><input type="text" name="updatememid" style="width:150px;"/></td
+                        <td>Enter user status: </td>
+                        <td><input type="text" name="updatestatus" style="width:150px;"/></td
+                        <td><input type="hidden" name="buttonaction" value="updatemember"/></td
 
-                        
-                        
-			<table class="table table-bordered table-condensed">
-                            <h2>
-				List of all current claims!             
-			</h2>
-				<thead>
-					<tr>
-                                                <th>
-							Claim ID:
-						</th>
-                                            	<th>
-							Reason:
-						</th>	
-                                                
-                                                  <br/>
-						<th>
-							Claim Amount:
-						</th>
-						<th>
-							Date:
-                                                </th>
-                                                <th>
-							Status:
-						</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>
-							1
-						</td>
-						
-					</tr>
-					<tr class="active">
-						<td>
-							2
-						</td>
-						
-					</tr>
-					<tr class="success">
-						<td>
-							3
-						</td>
-						
-					</tr>
-					<tr class="warning">
-						<td>
-							4
-						</td>
-						
-					</tr>
-					<tr class="danger">
-						<td>
-							5
-						</td>
-					
-					</tr>
-				</tbody>
-			</table>
-                        
-                        
-                                    
-			<table class="table table-bordered table-condensed">
-                            <h2>
-				Provisional member applications!             
-			</h2>
-				<thead>
-					<tr>
-                                                <th>
-							Name:
-						</th>
-                                            	<th>
-							Status:
-						</th>	
-                                               
-					</tr>
-                                        <tbody>
-					<tr>
-						<td>
-							*Name one*
-						</td>
-						
-					</tr>
-					<tr class="active">
-						<td>
-							*Name Two*
-						</td>
-						
-					</tr>
-
-			</table>
-                         <button type="Approve" class="btn btn-default">
-					Approve
-				</button>
-                        <button type="Decline" class="btn btn-default">
-					Decline
-				</button>
-
-                        <h2>
-				Process individual claims!             
-			</h2>
-                          <h3>
-                                Search for name:
-                            </h3>
-                           <form>
-                            <input type="text" name="search" placeholder="Search..">
-                            </form>  
-                        <table class="table table-bordered table-condensed">   
-                            <thead>
-					<tr>
-                                                <th>
-							Claims:
-						</th>        
-					</tr>
-                                        <tbody>
-					<tr>
-						<td>
-							*Name one*
-						</td>	
-					</tr>
-					<tr class="active">
-						<td>
-							*Name Two*
-						</td>						
-					</tr>
-                        </table>
-                        <button type="Approve" class="btn btn-default">
-					Approve
-				</button>
-                        <button type="Decline" class="btn btn-default">
-					Decline
-				</button>
-
-                        <h2>
-				Process membership applications!             
-			</h2>  
-                        
-                        <table class="table table-bordered table-condensed">   
-                            <thead>
-					<tr>
-                                                <th>
-							Name:
-						</th>     
-					</tr>
-                                        <tbody>	
-                        </table>               
-                        <form>
-                            <input type="text" name="search" placeholder="">
-                            </form> 
-                        <form>
-                            <input type="text" name="search" placeholder="">
-                            </form> 
-                        <form>
-                            <input type="text" name="search" placeholder="">
-                            </form> 
-                         <button type="Approve" class="btn btn-default">
-					Approve
-				</button>
-                        <button type="Decline" class="btn btn-default">
-					Decline
-				</button>
-                        
-                        
-                        <h2>
-				Suspend / Resume membership!             
-			</h2>
-                        <form>
-                            <input type="text" name="search" placeholder="">
-                            </form> 
-                        <form>
-                            <form>
-                            <input type="text" name="search" placeholder="">
-                            </form> 
-                        <form>
-                            <form>
-                            <input type="text" name="search" placeholder="">
-                            </form> 
-                        <form>
-                        <button type="Suspend" class="btn btn-default">
-					Suspend
-				</button>
-                        <button type="Resume" class="btn btn-default">
-					Resume
-				</button>
-                        
-                        <h2>
-				Annual Turnover:   *Includes total income and Payouts* 
-                                
-			</h2>
-                        <div style="width:500px;height:30px;border:1px solid #000;"></div>
-               
-                        <p/>
+                        <td><input type="submit" value="submit"/></td>
+                        <td><%=request.getAttribute("message")%></td>
+                            
                         </form>
-                         <form method="POST" action="adminLogin.jsp"> 
-                        <button type="Logout" class="btn btn-default">
-					Logout
+                        
+                       
+                        
+
+                        <h2> List of all current claims </h2>
+                        <%=(String) (request.getAttribute("adminclaimlist"))%>
+				
+                        <h2> Process individual claims </h2>
+                        <td><%=request.getAttribute("message")%></td>
+                         
+                        <td>Enter user ID: </td>
+                        <td><input type="text" name="indid" style="width:150px;"/></td>
+                        
+                        <button type="Approve" name="claimApprove">
+					Approve
 				</button>
-                             </form> 
+                        
+                        <button type="Decline" name="claimDecline">
+					Decline
+				</button>
+
+                        <h2> Provisional member applications </h2>
+                        
+
+                        <h2> Process membership applications </h2>  
+                        
+                        <td>Enter user ID: </td>
+                        <td><input type="text" name="appid" style="width:150px;"/></td>
+                        
+                        <td>Enter status (Approve or Deny) </td>
+                        <form
+                        <td><input type="text" name="status" style="width:150px;"/></td>
+                        
+                        <td><input type="submit" value="Submit"/></td>
+                        
+
+                        
+                       <h2> Annual Turnover: </h2>
+                       <form
+                       <td><input type="text" name="total" style="width:500px;"/></td>
+                       </form>
+                        
+
+                        <form method="POST" action="adminLogin.jsp"> 
+                        <button type="Logout" name="logout">
+					Logout
+			</button>
+                        </form> 
 		</div>
 	</div>
 </div>
