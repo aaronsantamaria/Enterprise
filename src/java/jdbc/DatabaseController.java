@@ -33,24 +33,53 @@ public class DatabaseController {
     Statement statement = null;
     ResultSet resultSet = null;
     int ClaimID = 4;
+
+    int PaymentID = 16;
+    String member_ID = null;
+
     LocalDate now = LocalDate.now();
     String startOfYear = now.with(TemporalAdjusters.firstDayOfYear()).toString();
     String endOfYear = now.with(TemporalAdjusters.lastDayOfYear()).toString();
     String today = now.toString();
     DecimalFormat df = new DecimalFormat("#.##");
 
-    public boolean NewClaim(String rationale, int amount) {
-        PreparedStatement ps = null;
+    public DatabaseController() {
+    }
 
-        String member_ID = null;
+    public void connect(Connection con) {
+        connection = con;
+    }
+    public void setmember(String id){
+        member_ID = id;
+    }
+
+    PreparedStatement ps = null;
+
+//    public static void main(){
+//        if (NewClaim("car", 50.0)){
+//            System.out.println("claim made");
+//        }
+//        else{
+//            System.out.println("claim not made");
+//        }
+//    }
+    public boolean NewClaim(String rationale, Double amount) {
+
+      PreparedStatement ps = null;
+      long millis=System.currentTimeMillis();  
+      Date date=new Date(millis);  
+
         try {
-            ps = connection.prepareStatement("INSERT INTO Claims VALUES (?,?)", PreparedStatement.RETURN_GENERATED_KEYS);
-            ps.setInt(2, ClaimID);
-            ps.setString(3, member_ID);
-            ps.setString(4, rationale.trim());
+            ps = connection.prepareStatement("INSERT INTO CLAIMS , values (?, ?, ?, ?, ?, ?)");
+            ps.setInt(1, ClaimID);
+            ps.setString(2, member_ID);
+            ps.setDate(3, date); 
+
+            ps.setString(4, rationale);
+
             ps.setString(5, "pending");
-            ps.setInt(6, amount);
-            ps.executeUpdate();
+            ps.setDouble(6, amount);
+            ps.execute();
 
             ps.close();
             System.out.println("claim added.");
@@ -62,14 +91,177 @@ public class DatabaseController {
         }
     }
 
-    public void NewPayment(char type, double amount) {
 
+    private ArrayList resultSetToList() throws SQLException {
+        ArrayList aList = new ArrayList();
+
+        int cols = resultSet.getMetaData().getColumnCount();
+        while (resultSet.next()) {
+            String[] s = new String[cols];
+            for (int i = 1; i <= cols; i++) {
+                s[i - 1] = resultSet.getString(i);
+            }
+            aList.add(s);
+        } // while    
+        return aList;
+    } //rsToList
+
+//    private String makeTable(ArrayList list) {
+//        StringBuilder b = new StringBuilder();
+//        String[] row;
+//        b.append("<table border=\"3\">");
+//        for (Object s : list) {
+//            b.append("<tr>");
+//            row = (String[]) s;
+//            for (String row1 : row) {
+//                b.append("<td>");
+//                b.append(row1);
+//                b.append("</td>");
+//            }
+//            b.append("</tr>\n");
+//        } // for
+//        b.append("</table>");
+//        return b.toString();
+//    }//makeHtmlTable
+
+
+    public Boolean NewPayment(String type, double amount){
+        long millis=System.currentTimeMillis();  
+        Date date=new Date(millis);
+        Time time=new Time(millis);
+
+        try {
+            ps = connection.prepareStatement("INSERT INTO PAYMENTS , values (?, ?, ?, ?, ?, ?)");
+            ps.setInt(1, PaymentID);
+            ps.setString(2, member_ID);
+            ps.setString(3, type);
+            ps.setDouble(4, amount); 
+            ps.setDate(5, date);
+            ps.setTime(6, time);
+
+            ps.execute();
+
+            ps.close();
+            System.out.println("payment added.");
+            PaymentID++;
+            return true;
+        } catch (SQLException ex) {
+            System.out.println("SQL exception");
+            return false;
+        }
+    }
+    public Double CheckBalance() {
+        Double memBalance = null;
+        try{
+            String query = "select id, balance from MEMBERS";
+            
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(query);
+            while(resultSet.next()){
+                String id = resultSet.getString("id");
+                Double balance = resultSet.getDouble("balance");
+                if(id == member_ID){
+                    memBalance = balance;
+                }
+
+            }
+        }catch (SQLException ex) {
+            System.out.println("SQL exception");
+            memBalance = 0.0;
+        }
+        return memBalance;
+    }
+    public String ListMemberPayment(){
+        String temp = null;
+        String[][] payarray = new String[100][5];
+        try{
+            String query = "select * from PAYMENTS WHERE \"mem_id\" = '"+member_ID+"'";
+            select(query);
+            temp = (makeTable(rsToList()));
+//            while(resultSet.next()){
+//                String id = resultSet.getString("mem_id");
+//                if(member_ID == id){
+//                    payarray[i][1] = resultSet.getString("id");;
+//                    payarray[i][2] = id;
+//                    payarray[i][3] = resultSet.getString("type_of_payment");
+//                    payarray[i][4] = resultSet.getString("amount");
+//                    payarray[i][5] = resultSet.getString("date");
+//                    i++;
+//                }
+//            }
+        }catch (SQLException ex) {
+            System.out.println("SQL exception");
+        }
+        return temp;
+    }
+    public String ListMemberClaims() {
+        String temp = null;
+        try{
+            String query = "select * from PAYMENTS WHERE \"mem_id\" = '"+member_ID+"'";
+            select(query);
+            temp = (makeTable(rsToList()));
+//            while(resultSet.next()){
+//                String id = resultSet.getString("mem_id");
+//                if(member_ID == id){
+//                    claimarray[i][1] = resultSet.getString("id");;
+//                    claimarray[i][2] = id;
+//                    claimarray[i][3] = resultSet.getString("rationale");
+//                    claimarray[i][4] = resultSet.getString("amount");
+//                    claimarray[i][5] = resultSet.getString("date");
+//                    claimarray[i][6] = resultSet.getString("status");
+//                    i++;
+//                }
+//            }
+        }catch (SQLException ex) {
+            System.out.println("SQL exception");
+
+
+
+        }
+        return temp;
     }
 
-    public void ApprovePayment() {
+    private void select(String query) {
 
+        //Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(query);
+            //statement.close();
+        } catch (SQLException e) {
+            System.out.println("way way" + e);
+            //results = e.toString();
+        }
     }
 
+    public String retrieve(String query) throws SQLException {
+        String results = "";
+        select(query);
+
+        return makeTable(resultSetToList());
+    }
+
+    public boolean exists(String user, String pass) {
+        boolean bool = false;
+        try {
+            ps = connection.prepareStatement("SELECT * FROM APP.USERS where \"id\" = ?");
+            ps.setObject(1, user);
+            resultSet = ps.executeQuery();
+            //select("SELECT * FROM ESD.MEMBERS where \"id\" = '" + user + "'");
+            if (resultSet.next()) {
+                System.out.println("TRUE");
+                if (pass.equals(resultSet.getObject("password"))) {
+
+                    System.out.println(pass);
+                    bool = true;
+                }
+            }
+        } catch (SQLException ex) {
+            //Logger.getLogger(model.Jdbc.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return bool;
+    }
+>>>>>>> master
     private ArrayList rsToList() throws SQLException {
         ArrayList aList = new ArrayList();
 
@@ -101,6 +293,7 @@ public class DatabaseController {
         b.append("</table>");
         return b.toString();
     }//makeHtmlTable
+
 
     private void select(String query) {
         //Statement statement = null;
@@ -154,14 +347,17 @@ public class DatabaseController {
         return processed;
     }
 
+
     public Boolean chargeLumpsum() {
 
         PreparedStatement ps = null;
         Boolean claimed = false;
         double fee = calcLumpsum();
+
         String query = "update members set \"balance\" = (\"balance\"+" + fee + ") WHERE \"status\"!='APPLIED'";
 
         //if (today.equals(endOfYear)) {
+
             try {
                 ps = connection.prepareStatement(query);
                 ps.executeUpdate();
@@ -180,12 +376,14 @@ public class DatabaseController {
         PreparedStatement ps = null;
         String query = "select * from members where \"id\" ='"+id+"'";
 
+
         try {
             select(query);
             while (resultSet.next() && processed == false) {
                     updateMembership(id, "APPROVED");
                     updateBalance(id, -10);
                     processed = true;
+
             }
         } catch (SQLException s) {
             System.out.println("SQL statement is not executed! " + s.getMessage());
@@ -198,6 +396,7 @@ public class DatabaseController {
 
         Boolean updated = false;
         PreparedStatement ps = null;
+
         String queryApprove = "update members set \"status\" ='APPROVED', \"dor\" =DATE_ADD(dor, INTERVAL 1 YEAR) where \"id\"='" + memid + "'";        
         String querySuspend = "update members set \"status\" ='SUSPENDED' where \"id\"='" + memid + "'";
 
@@ -223,6 +422,7 @@ public class DatabaseController {
         return updated;
     }
 
+
     public Boolean chargeFee(String id) {
 
         Boolean charged = false;
@@ -243,7 +443,9 @@ public class DatabaseController {
     private void updateBalance(String username, double amount) {
 
         PreparedStatement ps = null;
+
         String queryUpdate = "update members set \"balance\" =(\"balance\"+" + amount + ") where \"id\"='" + username + "'";
+
 
         try {
             ps = connection.prepareStatement(queryUpdate);
