@@ -18,6 +18,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import jdbc.DatabaseController;
+//
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import javax.servlet.RequestDispatcher;
 
 /**
  *
@@ -50,11 +58,15 @@ public class UserServlet extends HttpServlet {
 //            //Class.forName("com.mysql.jdbc.Driver");
 //            Class.forName("org.apache.derby.jdbc.ClientDriver");
 //            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/Claims", "esd", "esd");
+
+        String memberId;
+
 //            System.out.println(conn.toString());
 //        } catch (ClassNotFoundException | SQLException e) {
 //            System.out.println(e);
 //        }
-        conn = (Connection)request.getServletContext().getAttribute("connection");
+
+        conn = (Connection) request.getServletContext().getAttribute("connection");
         //response.setContentType("text/html;charset=UTF-8");
         DatabaseController db = new DatabaseController();
         db.connect(conn);
@@ -82,14 +94,57 @@ public class UserServlet extends HttpServlet {
                         db.setmember(memberId);
                         request.setAttribute("claimlist", db.ListMemberClaims());
                         request.setAttribute("paymentlist", db.ListMemberPayment());
-
-                    } else {
+                      } else {
                         request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
                     }
                 } else {
                     request.getRequestDispatcher("registration.jsp").forward(request, response);
                     // out.println("username or password incorrect");
                 }
+                break;
+            case "register":
+
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDate localDate = LocalDate.now();
+
+                String name = request.getParameter("firstname") + " "
+                        + request.getParameter("lastname");
+
+                String dob = request.getParameter("yyyy") + "-"
+                        + request.getParameter("mm") + "-"
+                        + request.getParameter("dd");
+
+                String dor = dtf.format(localDate);
+
+                String status = "APPLIED";
+
+                String balance = "10";
+
+                String address = request.getParameter("addressline1") + ", "
+                        + request.getParameter("addressline2") + ", "
+                        + request.getParameter("city") + ", "
+                        + request.getParameter("postcode");
+
+                String[] splitName = request.getParameter("firstname").split("");
+                String usernameID = splitName[0] + "-" + request.getParameter("lastname");
+
+                usernameID = usernameID.toLowerCase();
+
+                String[] splitYear = request.getParameter("yyyy").split("");
+                String password = request.getParameter("dd")
+                        + request.getParameter("mm")
+                        + splitYear[2]
+                        + splitYear[3];
+
+                db.addMember(usernameID, name, address, dob, dor, status, balance);
+                db.addUser(usernameID, password, status);
+
+                request.setAttribute("username", usernameID);
+                request.setAttribute("password", password);
+                RequestDispatcher rd = request.getRequestDispatcher("displayNewUserDetails.jsp");
+                rd.include(request, response);
+
+                //request.getRequestDispatcher("displayNewUserDetails.jsp").forward(request, response);
                 break;
             case "newclaim" :
                 double claimamount = Double.parseDouble(request.getParameter("amount"));
@@ -113,6 +168,7 @@ public class UserServlet extends HttpServlet {
                 }
                 request.setAttribute("message", htmlmessage);
                 break;
+            
             case "checkbalance":
                 double balance = db.CheckBalance();
                 htmlmessage = Double.toString(balance);

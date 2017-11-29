@@ -36,7 +36,8 @@ public class DatabaseController {
 
     int PaymentID = 16;
     String member_ID = null;
-    LocalDate now = LocalDate.now();
+
+  LocalDate now = LocalDate.now();
     String startOfYear = now.with(TemporalAdjusters.firstDayOfYear()).toString();
     String endOfYear = now.with(TemporalAdjusters.lastDayOfYear()).toString();
     String today = now.toString();
@@ -67,6 +68,7 @@ public class DatabaseController {
       PreparedStatement ps = null;
       long millis=System.currentTimeMillis();  
       Date date=new Date(millis);  
+
 
         try {
             ps = connection.prepareStatement("INSERT INTO CLAIMS , values (?, ?, ?, ?, ?, ?)");
@@ -136,9 +138,7 @@ public class DatabaseController {
             ps.setDouble(4, amount); 
             ps.setDate(5, date);
             ps.setTime(6, time);
-
             ps.execute();
-
             ps.close();
             System.out.println("payment added.");
             PaymentID++;
@@ -147,6 +147,7 @@ public class DatabaseController {
             System.out.println("SQL exception");
             return false;
         }
+
     }
     public Double CheckBalance() {
         Double memBalance = null;
@@ -169,7 +170,8 @@ public class DatabaseController {
         }
         return memBalance;
     }
-    public String ListMemberPayment(){
+
+  public String ListMemberPayment(){
         String temp = null;
         String[][] payarray = new String[100][5];
         try{
@@ -242,8 +244,10 @@ public class DatabaseController {
     public boolean exists(String user, String pass) {
         boolean bool = false;
         try {
-            ps = connection.prepareStatement("SELECT * FROM APP.USERS where \"id\" = ?");
-            ps.setObject(1, user);
+
+            ps = connection.prepareStatement("SELECT * FROM ENTERPRISE.USERS where \"id\" = ?");
+
+          ps.setObject(1, user);
             resultSet = ps.executeQuery();
             //select("SELECT * FROM ESD.MEMBERS where \"id\" = '" + user + "'");
             if (resultSet.next()) {
@@ -511,4 +515,44 @@ public class DatabaseController {
         }
         return fee;
     }
-}
+    
+    public void addUser(String id, String pass, String status) {
+        PreparedStatement ps = null;
+        try {
+            ps = connection.prepareStatement("INSERT INTO ENTERPRISE.USERS VALUES (?,?,?)", PreparedStatement.RETURN_GENERATED_KEYS);
+            ps.setString(1, id);
+            ps.setString(2, pass);
+            ps.setString(3, status);
+
+            ps.executeUpdate();
+            ps.close();
+
+            System.out.println("1 row added to USERS.");
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }// end - addUser
+        
+    public void addMember(String id, String name, String address, String dob, String dor, String status, String balance) {
+        PreparedStatement psM = null;
+        try {
+            psM = connection.prepareStatement("INSERT INTO ENTERPRISE.MEMBERS VALUES (?,?,?,?,?,?,?)", PreparedStatement.RETURN_GENERATED_KEYS);
+            psM.setString(1, id);
+            psM.setString(2, name);
+            psM.setString(3, address);
+            psM.setString(4, dob);
+            psM.setString(5, dor);
+            psM.setString(6, status);
+            psM.setString(7, balance);
+
+            psM.executeUpdate();
+            psM.close();
+
+            System.out.println("1 row added to MEMBERS.");
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }// end - addUser
+    
+   
+ }

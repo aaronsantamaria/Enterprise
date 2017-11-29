@@ -14,7 +14,7 @@
     <body>
         <h1>Registration Page</h1>
 
-        <form method="POST" action="/action_page.php">    
+        <form method="POST" action="${pageContext.request.contextPath}/UserServlet">    
             <table>
                 <tr>
                     <th></th>
@@ -59,8 +59,10 @@
                 </tr>
                 <tr>
                     <td></td>
-                    <td> <input type="submit" value="Submit"/></td>
+                     <td><input type="hidden" name="buttonaction" value="register"></td>
+                    <td> <input type="submit" value="register" name="buttonaction"/></td>
                 </tr>
+                
             </table>
         </form>  
 

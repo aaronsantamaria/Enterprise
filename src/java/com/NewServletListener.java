@@ -15,7 +15,7 @@ import javax.servlet.ServletContextListener;
 /**
  * Web application lifecycle listener.
  *
- * @author chigolumobikile
+ * @author aaronsantamaria
  */
 public class NewServletListener implements ServletContextListener {
 
@@ -25,13 +25,14 @@ public class NewServletListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {
         ServletContext sc = sce.getServletContext();
         String db = sc.getInitParameter("dbname");
-
+        
         try {
             //Class.forName("com.mysql.jdbc.Driver");
             Class.forName("org.apache.derby.jdbc.ClientDriver");
-            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/Claims", "esd", "esd");
-
-        } catch (ClassNotFoundException | SQLException e) {
+            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/"+db.trim(),"enterprise","enterprise");
+            System.out.println(conn.toString());
+        }
+        catch(ClassNotFoundException | SQLException e){
             sc.setAttribute("error", e);
         }
         sc.setAttribute("connection", conn);
@@ -43,5 +44,6 @@ public class NewServletListener implements ServletContextListener {
             conn.close();
         } catch (SQLException e) {
         }
+
     }
 }
