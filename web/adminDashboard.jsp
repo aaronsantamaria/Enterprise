@@ -16,22 +16,30 @@
  
 			<h2> List of all members </h2>
                         
-                        <h2> Suspend / Resume membership </h2>
+                        <%=(String) (request.getAttribute("adminmemberlist"))%>
                         
+                        <h2> Suspend / Resume membership </h2>
+                        <form method="POST" action="${pageContext.request.contextPath}/UserServlet" > 
+                            
                         <td>Enter user ID: </td>
-                        <td><input type="text" name="id" style="width:150px;"/></td>
+                        <td><input type="text" name="updatememid" style="width:150px;"/></td
+                        <td>Enter user status: </td>
+                        <td><input type="text" name="updatestatus" style="width:150px;"/></td
+                        <td><input type="hidden" name="buttonaction" value="updatemember"/></td
 
-                        <button type="Suspend" name="suspend">
-					Suspend
-				</button>
-                        <button type="Resume" name="resume">
-					Resume
-				</button>
+                        <td><input type="submit" value="submit"/></td>
+                        <td><%=request.getAttribute("message")%></td>
+                            
+                        </form>
+                        
+                       
                         
 
                         <h2> List of all current claims </h2>
+                        <%=(String) (request.getAttribute("adminclaimlist"))%>
 				
                         <h2> Process individual claims </h2>
+                        <td><%=request.getAttribute("message")%></td>
                          
                         <td>Enter user ID: </td>
                         <td><input type="text" name="indid" style="width:150px;"/></td>
@@ -53,6 +61,7 @@
                         <td><input type="text" name="appid" style="width:150px;"/></td>
                         
                         <td>Enter status (Approve or Deny) </td>
+                        <form
                         <td><input type="text" name="status" style="width:150px;"/></td>
                         
                         <td><input type="submit" value="Submit"/></td>
