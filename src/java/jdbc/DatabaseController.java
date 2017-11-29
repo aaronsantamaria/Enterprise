@@ -319,7 +319,7 @@ public class DatabaseController {
 
         String temp = null;
         try{
-            String query = "select * from claims";
+            String query = "SELECT * FROM claims";
             select(query);
             temp = (makeTable(rsToList()));
 
@@ -333,7 +333,7 @@ public class DatabaseController {
 
         String temp = null;
         try{
-            String query = "select * from members where \"status\" like 'APPLIED'";
+            String query = "SELECT * FROM members WHERE \"status\" LIKE 'APPLIED'";
             select(query);
             temp = (makeTable(rsToList()));
 
@@ -346,7 +346,7 @@ public class DatabaseController {
     public Boolean processClaim(int id, String status) {
 
         Boolean processed = false;
-        String query = "update claims set \"status\" = '" + status + "' where \"id\" =" + id;
+        String query = "UPDATE Enterprise.Claims SET \"status\" = '" + status + "' WHERE \"id\" LIKE" + id;
 
         try {
             statement = connection.createStatement();
@@ -366,7 +366,7 @@ public class DatabaseController {
         Boolean claimed = false;
         double fee = calcLumpsum();
 
-        String query = "update members set \"balance\" = (\"balance\"+" + fee + ") WHERE \"status\"!='APPLIED'";
+        String query = "UPDATE Enterprise.Members set \"blanace\" = (\"balance\"+" + fee + ") WHERE \"status\" NOT LIKE 'APPLIED'";
 
         //if (today.equals(endOfYear)) {
 
@@ -381,29 +381,6 @@ public class DatabaseController {
         //}
         return claimed;
     }//method
-
-    public Boolean processApplication(String id) {
-
-        Boolean processed = false;
-        PreparedStatement ps = null;
-        String query = "select * from members where \"id\" ='"+id+"'";
-
-
-        try {
-            select(query);
-            while (resultSet.next() && processed == false) {
-                    updateMembership(id, "APPROVED");
-                    updateBalance(id, -10);
-                    processed = true;
-
-
-            }
-        } catch (SQLException s) {
-            System.out.println("SQL statement is not executed! " + s.getMessage());
-
-        }
-        return processed;
-    }    
 
     public Boolean updateMembership(String memid, String status) {
 
@@ -428,7 +405,7 @@ public class DatabaseController {
     public Boolean chargeFee(String id) {
 
         Boolean charged = false;
-        String query = "select * from members where \"id\" LIKE '" + id + "' AND \"status\" LIKE 'APPROVED' and \"dor\" <='" + today + "'";
+        String query = "SELECT * FROM Enterprise.Members WHERE \"id\" LIKE '" + id + "' AND \"status\" LIKE 'APPROVED' and \"dor\" <='" + today + "'";
 
         try {
             select(query);
@@ -467,7 +444,7 @@ public class DatabaseController {
         double count = 0;
 
         df.setRoundingMode(RoundingMode.FLOOR);
-        String queryCount = "select count(*) from MEMBERS";
+        String queryCount = "SELECT COUNT(*) from MEMBERS";
         String querySum = "SELECT SUM(\"amount\") FROM Enterprise.Claims WHERE \"status\" LIKE 'APPROVED' AND \"date\" BETWEEN '" + startOfYear + "' AND '" + endOfYear + "'";
 
         try {
