@@ -229,4 +229,48 @@ public class DatabaseController {
         }
         return bool;
     }
+    
+    public void addUser(String id, String pass, String status) {
+        PreparedStatement ps = null;
+        try {
+            ps = connection.prepareStatement("INSERT INTO ENTERPRISE.USERS VALUES (?,?,?)", PreparedStatement.RETURN_GENERATED_KEYS);
+            ps.setString(1, id);
+            ps.setString(2, pass);
+            ps.setString(3, status);
+
+            ps.executeUpdate();
+            ps.close();
+
+            System.out.println("1 row added to USERS.");
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }// end - addUser
+        
+    public void addMember(String id, String name, String address, String dob, String dor, String status, String balance) {
+        PreparedStatement psM = null;
+        try {
+            psM = connection.prepareStatement("INSERT INTO ENTERPRISE.MEMBERS VALUES (?,?,?,?,?,?,?)", PreparedStatement.RETURN_GENERATED_KEYS);
+            psM.setString(1, id);
+            psM.setString(2, name);
+            psM.setString(3, address);
+            psM.setString(4, dob);
+            psM.setString(5, dor);
+            psM.setString(6, status);
+            psM.setString(7, balance);
+
+            psM.executeUpdate();
+            psM.close();
+
+            System.out.println("1 row added to MEMBERS.");
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }// end - addUser
+    
+    
+
+   
+
+
 }
