@@ -29,9 +29,12 @@
                     <tr>
                         <td>Password:</td>
                         <td><input type="password" name="password"/></td>
+                        <td><input type="hidden" name="buttonaction" value="Login"></td>
+                        
                     </tr>
+                    
                     <tr>
-                        <td> <input type="submit" value="Login>"/></td>
+                        <td> <input type="submit" value="Login>"  /></td>
                     </tr>
                 </table>
             </centre>
