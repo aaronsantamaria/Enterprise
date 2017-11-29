@@ -40,7 +40,6 @@ public class DatabaseController {
     String today = now.toString();
     DecimalFormat df = new DecimalFormat("#.##");
 
-
     public DatabaseController() {
     }
 
@@ -52,7 +51,7 @@ public class DatabaseController {
     }
 
     PreparedStatement ps = null;
-    
+
 //    public static void main(){
 //        if (NewClaim("car", 50.0)){
 //            System.out.println("claim made");
@@ -61,17 +60,18 @@ public class DatabaseController {
 //            System.out.println("claim not made");
 //        }
 //    }
-    
     public boolean NewClaim(String rationale, Double amount) {
 
       PreparedStatement ps = null;
       long millis=System.currentTimeMillis();  
       Date date=new Date(millis);  
+
         try {
             ps = connection.prepareStatement("INSERT INTO CLAIMS , values (?, ?, ?, ?, ?, ?)");
             ps.setInt(1, ClaimID);
             ps.setString(2, member_ID);
             ps.setDate(3, date); 
+
             ps.setString(4, rationale);
             ps.setString(5, "pending");
             ps.setDouble(6, amount);
@@ -125,6 +125,7 @@ public class DatabaseController {
         long millis=System.currentTimeMillis();  
         Date date=new Date(millis);
         Time time=new Time(millis);
+
         try {
             ps = connection.prepareStatement("INSERT INTO PAYMENTS , values (?, ?, ?, ?, ?, ?)");
             ps.setInt(1, PaymentID);
@@ -133,8 +134,8 @@ public class DatabaseController {
             ps.setDouble(4, amount); 
             ps.setDate(5, date);
             ps.setTime(6, time);
+
             ps.execute();
-            
 
             ps.close();
             System.out.println("payment added.");
@@ -144,7 +145,6 @@ public class DatabaseController {
             System.out.println("SQL exception");
             return false;
         }
-        
     }
     public Double CheckBalance() {
         Double memBalance = null;
@@ -159,12 +159,13 @@ public class DatabaseController {
                 if(id == member_ID){
                     memBalance = balance;
                 }
+
             }
         }catch (SQLException ex) {
             System.out.println("SQL exception");
             memBalance = 0.0;
         }
-        return memBalance;  
+        return memBalance;
     }
     public String ListMemberPayment(){
         String temp = null;
@@ -209,13 +210,16 @@ public class DatabaseController {
 //            }
         }catch (SQLException ex) {
             System.out.println("SQL exception");
+
+
+
         }
         return temp;
     }
-    private void select(String query){
 
-      //Statement statement = null;
+    private void select(String query) {
 
+        //Statement statement = null;
         try {
             statement = connection.createStatement();
             resultSet = statement.executeQuery(query);
@@ -502,4 +506,3 @@ public class DatabaseController {
         return fee;
     }
 }
-

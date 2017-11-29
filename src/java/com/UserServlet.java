@@ -46,15 +46,15 @@ public class UserServlet extends HttpServlet {
         HttpSession session = request.getSession();
         
 
-        try {
-            //Class.forName("com.mysql.jdbc.Driver");
-            Class.forName("org.apache.derby.jdbc.ClientDriver");
-            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/Claims", "esd", "esd");
-            System.out.println(conn.toString());
-        } catch (ClassNotFoundException | SQLException e) {
-            System.out.println(e);
-        }
-
+//        try {
+//            //Class.forName("com.mysql.jdbc.Driver");
+//            Class.forName("org.apache.derby.jdbc.ClientDriver");
+//            conn = DriverManager.getConnection("jdbc:derby://localhost:1527/Claims", "esd", "esd");
+//            System.out.println(conn.toString());
+//        } catch (ClassNotFoundException | SQLException e) {
+//            System.out.println(e);
+//        }
+        conn = (Connection)request.getServletContext().getAttribute("connection");
         //response.setContentType("text/html;charset=UTF-8");
         DatabaseController db = new DatabaseController();
         db.connect(conn);
@@ -63,13 +63,12 @@ public class UserServlet extends HttpServlet {
         if (conn == null) {
             request.getRequestDispatcher("connErr.jsp").forward(request, response);
         }
-        
+      
         request.setAttribute("adminclaimlist", db.listClaims());
         request.setAttribute("adminbalancelist", db.listBalance()); 
         request.setAttribute("adminmemberlist", db.listMembers());
         request.setAttribute("adminapplicationlist", db.listApplication());
         
-
         switch (request.getParameter("buttonaction")){
             default: 
                 request.getRequestDispatcher("userLogin.jsp").forward(request, response);
@@ -83,6 +82,7 @@ public class UserServlet extends HttpServlet {
                         db.setmember(memberId);
                         request.setAttribute("claimlist", db.ListMemberClaims());
                         request.setAttribute("paymentlist", db.ListMemberPayment());
+
                     } else {
                         request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
                     }
@@ -159,12 +159,9 @@ public class UserServlet extends HttpServlet {
                     htmlmessage = "member updating failed";
                 }
                 request.setAttribute("message", htmlmessage);
-                break;
-            
-            
+                break;            
         }
         //request.getRequestDispatcher("connErr.jsp").forward(request, response);
-
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
