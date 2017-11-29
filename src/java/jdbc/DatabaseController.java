@@ -159,9 +159,9 @@ public class DatabaseController {
         PreparedStatement ps = null;
         Boolean claimed = false;
         double fee = calcLumpsum();
-        String query = "UPDATE members SET balance = (balance+" + fee + ") WHERE status!='APPLIED'";
+        String query = "update members set \"balance\" = (\"balance\"+" + fee + ") WHERE \"status\"!='APPLIED'";
 
-        if (today.equals(endOfYear)) {
+        //if (today.equals(endOfYear)) {
             try {
                 ps = connection.prepareStatement(query);
                 ps.executeUpdate();
@@ -170,28 +170,22 @@ public class DatabaseController {
             } catch (SQLException s) {
                 System.out.println("SQL statement is not executed! " + s.getMessage());
             }
-        }
+        //}
         return claimed;
     }//method
 
-    public Boolean processApplication(int id, String status) {
+    public Boolean processApplication(String id) {
 
         Boolean processed = false;
         PreparedStatement ps = null;
-        String query = "SELECT * FROM payments'";
-        String username;
+        String query = "select * from members where \"id\" ='"+id+"'";
 
         try {
             select(query);
             while (resultSet.next() && processed == false) {
-                if (id == resultSet.getInt("id")) {
-                    username = resultSet.getString("mem_id");
-
-                    updateMembership(username, "APPROVED");
-                    updateBalance(username, -10);
-
+                    updateMembership(id, "APPROVED");
+                    updateBalance(id, -10);
                     processed = true;
-                }
             }
         } catch (SQLException s) {
             System.out.println("SQL statement is not executed! " + s.getMessage());
@@ -204,8 +198,8 @@ public class DatabaseController {
 
         Boolean updated = false;
         PreparedStatement ps = null;
-        String queryApprove = "UPDATE members SET status ='APPROVED', dor =DATE_ADD(dor, INTERVAL 1 YEAR) WHERE id='" + memid + "'";        
-        String querySuspend = "update members set \"status\" ='SUSPENDED' WHERE id='" + memid + "'";
+        String queryApprove = "update members set \"status\" ='APPROVED', \"dor\" =DATE_ADD(dor, INTERVAL 1 YEAR) where \"id\"='" + memid + "'";        
+        String querySuspend = "update members set \"status\" ='SUSPENDED' where \"id\"='" + memid + "'";
 
         try {
             if (status.equals("APPROVED")) {
@@ -229,28 +223,27 @@ public class DatabaseController {
         return updated;
     }
 
-//    public Boolean chargeFee(String id) {
-//
-//        Boolean charged = false;
-//        String query = "select * from members where \"id\"= '" + id + "' and \"status\" ='APPROVED' and \"dor\" <='" + today + "'";
-//
-//        try {
-//            select(query);
-//            while (resultSet.next()) {
-//                updateMembership(id, "SUSPENDED");
-//                updateBalance(id, 10);
-//                charged = true;
-//            }
-//        } catch (SQLException s) {
-//            System.out.println("SQL statement is not executed! " + s.getMessage());
-//        }
-//        return charged;
-//    }
+    public Boolean chargeFee(String id) {
+
+        Boolean charged = false;
+        String query = "select * from members where \"id\"= '" + id + "' and \"status\" ='APPROVED' and \"dor\" <='" + today + "'";
+
+        try {
+            select(query);
+            while (resultSet.next()) {
+                updateBalance(id, 10);
+                charged = true;
+            }
+        } catch (SQLException s) {
+            System.out.println("SQL statement is not executed! " + s.getMessage());
+        }
+        return charged;
+    }
 
     private void updateBalance(String username, double amount) {
 
         PreparedStatement ps = null;
-        String queryUpdate = "UPDATE members SET \"balance\" =(\"balance\"+" + amount + ") WHERE \"id\"='" + username + "'";
+        String queryUpdate = "update members set \"balance\" =(\"balance\"+" + amount + ") where \"id\"='" + username + "'";
 
         try {
             ps = connection.prepareStatement(queryUpdate);
@@ -263,31 +256,31 @@ public class DatabaseController {
         }
     }
 
-    public String listIncome() throws SQLException {
-        String results = "";
-        //Double income = 0.00;
+//    public String listIncome() throws SQLException {
+//        String results = "";
+//        //Double income = 0.00;
+//
+//        select("select * from payments where \"date\" between '" + startOfYear + "' and '" + endOfYear + "'");
+//
+//        //while (resultSet.next()) {
+//        //  income = income + resultSet.getDouble("amount");
+//        //}
+//        return makeTable(rsToList());//results;
+//        //return income;
+//    }//method
 
-        select("select * from payments where \"date\" between '" + startOfYear + "' and '" + endOfYear + "'");
-
-        //while (resultSet.next()) {
-        //  income = income + resultSet.getDouble("amount");
-        //}
-        return makeTable(rsToList());//results;
-        //return income;
-    }//method
-
-    public String listExpense() throws SQLException {
-        String results = "";
-        //Double expense =0.00;
-
-        select("select * from claims where \"status\" ='APPROVED' and \"date\" between '" + startOfYear + "' and '" + endOfYear + "'");
-
-        //while (resultSet.next()) {
-        //  expense = expense + resultSet.getDouble("amount");
-        //}
-        return makeTable(rsToList());//results;
-        //return expense;
-    }//method
+//    public String listExpense() throws SQLException {
+//        String results = "";
+//        //Double expense =0.00;
+//
+//       select("select * from claims where \"status\" ='APPROVED' and \"date\" between '" + startOfYear + "' and '" + endOfYear + "'");
+//
+//        //while (resultSet.next()) {
+//        //  expense = expense + resultSet.getDouble("amount");
+//        //}
+//        return makeTable(rsToList());//results;
+//        //return expense;
+//    }//method
 
     private double calcLumpsum() {
 
