@@ -36,7 +36,8 @@ public class DatabaseController {
 
     int PaymentID = 16;
     String member_ID = null;
-    LocalDate now = LocalDate.now();
+
+  LocalDate now = LocalDate.now();
     String startOfYear = now.with(TemporalAdjusters.firstDayOfYear()).toString();
     String endOfYear = now.with(TemporalAdjusters.lastDayOfYear()).toString();
     String today = now.toString();
@@ -67,6 +68,7 @@ public class DatabaseController {
       PreparedStatement ps = null;
       long millis=System.currentTimeMillis();  
       Date date=new Date(millis);  
+
 
         try {
             ps = connection.prepareStatement("INSERT INTO CLAIMS , values (?, ?, ?, ?, ?, ?)");
@@ -136,9 +138,7 @@ public class DatabaseController {
             ps.setDouble(4, amount); 
             ps.setDate(5, date);
             ps.setTime(6, time);
-
             ps.execute();
-
             ps.close();
             System.out.println("payment added.");
             PaymentID++;
@@ -147,6 +147,7 @@ public class DatabaseController {
             System.out.println("SQL exception");
             return false;
         }
+
     }
     public Double CheckBalance() {
         Double memBalance = null;
@@ -169,7 +170,8 @@ public class DatabaseController {
         }
         return memBalance;
     }
-    public String ListMemberPayment(){
+
+  public String ListMemberPayment(){
         String temp = null;
         String[][] payarray = new String[100][5];
         try{
@@ -198,18 +200,7 @@ public class DatabaseController {
             String query = "select * from PAYMENTS WHERE \"mem_id\" = '"+member_ID+"'";
             select(query);
             temp = (makeTable(rsToList()));
-//            while(resultSet.next()){
-//                String id = resultSet.getString("mem_id");
-//                if(member_ID == id){
-//                    claimarray[i][1] = resultSet.getString("id");;
-//                    claimarray[i][2] = id;
-//                    claimarray[i][3] = resultSet.getString("rationale");
-//                    claimarray[i][4] = resultSet.getString("amount");
-//                    claimarray[i][5] = resultSet.getString("date");
-//                    claimarray[i][6] = resultSet.getString("status");
-//                    i++;
-//                }
-//            }
+
         }catch (SQLException ex) {
             System.out.println("SQL exception");
 
@@ -242,8 +233,10 @@ public class DatabaseController {
     public boolean exists(String user, String pass) {
         boolean bool = false;
         try {
-            ps = connection.prepareStatement("SELECT * FROM APP.USERS where \"id\" = ?");
-            ps.setObject(1, user);
+
+            ps = connection.prepareStatement("SELECT * FROM ENTERPRISE.USERS where \"id\" = ?");
+
+          ps.setObject(1, user);
             resultSet = ps.executeQuery();
             //select("SELECT * FROM ESD.MEMBERS where \"id\" = '" + user + "'");
             if (resultSet.next()) {
@@ -292,41 +285,62 @@ public class DatabaseController {
         return b.toString();
     }//makeHtmlTable
 
-    private void select(String query) {
-        //Statement statement = null;
 
-        try {
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(query);
-            //statement.close();
-        } catch (SQLException e) {
-            System.out.println("way way" + e);
-            //results = e.toString();
-        }
-    }
+    public String listMembers() {
 
-    public String listMembers() throws SQLException {
-        String results = "";
         select("select * from members");
-        return makeTable(rsToList());//results;
+        String temp = null;
+        try{
+            String query = "select * from members";
+            select(query);
+            temp = (makeTable(rsToList()));
+
+        }catch (SQLException ex) {
+            System.out.println("SQL exception");
+        }
+        return temp;
     }
 
-    public String listBalance() throws SQLException {
-        String results = "";
-        select("select * from members where \"status\" not like 'ADMIN' and \"balance\" > 0.0");
-        return makeTable(rsToList());//results;
+    public String listBalance() {
+
+        String temp = null;
+        try{
+            String query = "select * from members where \"status\" not like 'ADMIN' and \"balance\" > 0.0";
+            select(query);
+            temp = (makeTable(rsToList()));
+
+        }catch (SQLException ex) {
+            System.out.println("SQL exception");
+        }
+        return temp;
     }
 
-    public String listClaims() throws SQLException {
-        String results = "";
-        select("select * from claims");
-        return makeTable(rsToList());//results;
+    public String listClaims() {
+
+        String temp = null;
+        try{
+            String query = "select * from claims";
+            select(query);
+            temp = (makeTable(rsToList()));
+
+        }catch (SQLException ex) {
+            System.out.println("SQL exception");
+        }
+        return temp;
     }
 
-    public String listApplication() throws SQLException {
-        String results = "";
-        select("select * from members where \"status\" like 'APPLIED'");
-        return makeTable(rsToList());//results;
+    public String listApplication() {
+
+        String temp = null;
+        try{
+            String query = "select * from members where \"status\" like 'APPLIED'";
+            select(query);
+            temp = (makeTable(rsToList()));
+
+        }catch (SQLException ex) {
+            System.out.println("SQL exception");
+        }
+        return temp;
     }
 
     public Boolean processClaim(int id, String status) {
@@ -395,24 +409,13 @@ public class DatabaseController {
 
         Boolean updated = false;
         PreparedStatement ps = null;
-        String queryApprove = "update members set \"status\" ='APPROVED', \"dor\" =DATE_ADD(dor, INTERVAL 1 YEAR) where \"id\"='" + memid + "'";        
-        String querySuspend = "update members set \"status\" ='SUSPENDED' where \"id\"='" + memid + "'";
-
+        String queryApprove = "UPDATE Enterprise.MEMBERS SET \"status\" = '"+status+"' WHERE \"id\" LIKE '"+memid+"'";        
 
         try {
-            if (status.equals("APPROVED")) {
                 ps = connection.prepareStatement(queryApprove);
                 ps.executeUpdate();
                 ps.close();
-                updateBalance(memid, -10);
                 updated = true;
-
-            } else if (status.equals("SUSPENDED")) {
-                ps = connection.prepareStatement(querySuspend);
-                ps.executeUpdate();
-                ps.close();
-                updated = true;
-            }
 
         } catch (SQLException s) {
             System.out.println("SQL statement is not executed! " + s.getMessage());
@@ -425,7 +428,7 @@ public class DatabaseController {
     public Boolean chargeFee(String id) {
 
         Boolean charged = false;
-        String query = "select * from members where \"id\"= '" + id + "' and \"status\" ='APPROVED' and \"dor\" <='" + today + "'";
+        String query = "select * from members where \"id\" LIKE '" + id + "' AND \"status\" LIKE 'APPROVED' and \"dor\" <='" + today + "'";
 
         try {
             select(query);
@@ -439,11 +442,11 @@ public class DatabaseController {
         return charged;
     }
 
-    private void updateBalance(String username, double amount) {
+    private void updateBalance(String memid, double amount) {
 
         PreparedStatement ps = null;
 
-        String queryUpdate = "update members set \"balance\" =(\"balance\"+" + amount + ") where \"id\"='" + username + "'";
+        String queryUpdate = "UPDATE Enterprise.MEMBERS SET \"balance\" =(\"balance\"+" + amount + ") where \"id\" LIKE '" + memid + "'";
 
 
         try {
@@ -457,33 +460,6 @@ public class DatabaseController {
         }
     }
 
-//    public String listIncome() throws SQLException {
-//        String results = "";
-//        //Double income = 0.00;
-//
-//        select("select * from payments where \"date\" between '" + startOfYear + "' and '" + endOfYear + "'");
-//
-//        //while (resultSet.next()) {
-//        //  income = income + resultSet.getDouble("amount");
-//        //}
-//        return makeTable(rsToList());//results;
-//        //return income;
-//    }//method
-
-//    public String listExpense() throws SQLException {
-//        String results = "";
-//        //Double expense =0.00;
-//
-//       select("select * from claims where \"status\" ='APPROVED' and \"date\" between '" + startOfYear + "' and '" + endOfYear + "'");
-//
-//        //while (resultSet.next()) {
-//        //  expense = expense + resultSet.getDouble("amount");
-//        //}
-//        return makeTable(rsToList());//results;
-//        //return expense;
-//    }//method
-
-
     private double calcLumpsum() {
 
         double fee = 0;
@@ -491,8 +467,8 @@ public class DatabaseController {
         double count = 0;
 
         df.setRoundingMode(RoundingMode.FLOOR);
-        String queryCount = "select count(*) from members";
-        String querySum = "select sum(\"amount\") from claims where \"status\" ='APPROVED' and \"date\" between '" + startOfYear + "' and '" + endOfYear + "'";
+        String queryCount = "select count(*) from MEMBERS";
+        String querySum = "SELECT SUM(\"amount\") FROM Enterprise.Claims WHERE \"status\" LIKE 'APPROVED' AND \"date\" BETWEEN '" + startOfYear + "' AND '" + endOfYear + "'";
 
         try {
             select(queryCount);
@@ -511,4 +487,44 @@ public class DatabaseController {
         }
         return fee;
     }
-}
+    
+    public void addUser(String id, String pass, String status) {
+        PreparedStatement ps = null;
+        try {
+            ps = connection.prepareStatement("INSERT INTO ENTERPRISE.USERS VALUES (?,?,?)", PreparedStatement.RETURN_GENERATED_KEYS);
+            ps.setString(1, id);
+            ps.setString(2, pass);
+            ps.setString(3, status);
+
+            ps.executeUpdate();
+            ps.close();
+
+            System.out.println("1 row added to USERS.");
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }// end - addUser
+        
+    public void addMember(String id, String name, String address, String dob, String dor, String status, String balance) {
+        PreparedStatement psM = null;
+        try {
+            psM = connection.prepareStatement("INSERT INTO ENTERPRISE.MEMBERS VALUES (?,?,?,?,?,?,?)", PreparedStatement.RETURN_GENERATED_KEYS);
+            psM.setString(1, id);
+            psM.setString(2, name);
+            psM.setString(3, address);
+            psM.setString(4, dob);
+            psM.setString(5, dor);
+            psM.setString(6, status);
+            psM.setString(7, balance);
+
+            psM.executeUpdate();
+            psM.close();
+
+            System.out.println("1 row added to MEMBERS.");
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }// end - addUser
+    
+   
+ }
