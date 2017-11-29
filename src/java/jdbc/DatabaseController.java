@@ -15,10 +15,12 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  *
@@ -29,7 +31,7 @@ public class DatabaseController {
     Connection connection = null;
     Statement statement = null;
     ResultSet resultSet = null;
-    int ClaimID = 4;
+    int ClaimID = 6;
 
     int PaymentID = 16;
     String member_ID = null;
@@ -53,29 +55,30 @@ public class DatabaseController {
 
     PreparedStatement ps = null;
 
-    public boolean NewClaim(String rationale, Double amount) {
+    public boolean NewClaim(String rationale, String amount) {
 
-        PreparedStatement ps = null;
-        long millis = System.currentTimeMillis();
-        Date date = new Date(millis);
+        
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate localDate = LocalDate.now();
+        String todaydate = dtf.format(localDate);
 
+        PreparedStatement psM = null;
         try {
-            ps = connection.prepareStatement("INSERT INTO CLAIMS, values (?, ?, ?, ?, ?, ?)");
-            ps.setInt(1, ClaimID);
-            ps.setString(2, member_ID);
-            ps.setDate(3, date);
-
-            ps.setString(4, rationale);
-            ps.setString(5, "pending");
-            ps.setDouble(6, amount);
-            ps.execute();
-
-            ps.close();
-            System.out.println("claim added.");
+            psM = connection.prepareStatement("INSERT INTO ENTERPRISE.CLAIMS VALUES (?,?,?,?,?,?)", PreparedStatement.RETURN_GENERATED_KEYS);
+            psM.setString(1, Integer.toString(ClaimID));
+            psM.setString(2, member_ID);
+            psM.setString(3, todaydate);
+            psM.setString(4, rationale);
+            psM.setString(5, "PENDING");
+            psM.setString(6, amount);
+            
+            psM.execute();
+            psM.close();
             ClaimID++;
+            System.out.println("1 row added to CLAIMS.");
             return true;
         } catch (SQLException ex) {
-            System.out.println("SQL exception");
+            Logger.getLogger(DatabaseController.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
     }//new claim
@@ -97,10 +100,11 @@ public class DatabaseController {
     public Boolean NewPayment(String type, double amount) {
         long millis = System.currentTimeMillis();
         Date date = new Date(millis);
+        
         Time time = new Time(millis);
 
         try {
-            ps = connection.prepareStatement("INSERT INTO PAYMENTS , values (?, ?, ?, ?, ?, ?)");
+            ps = connection.prepareStatement("INSERT INTO ENTERPRISE.PAYMENTS VALUES (?,?,?,?,?,?)", PreparedStatement.RETURN_GENERATED_KEYS);
             ps.setInt(1, PaymentID);
             ps.setString(2, member_ID);
             ps.setString(3, type);
@@ -111,6 +115,7 @@ public class DatabaseController {
             ps.close();
             System.out.println("payment added.");
             PaymentID++;
+            updateBalance(member_ID, (CheckBalance() - amount));
             return true;
         } catch (SQLException ex) {
             System.out.println("SQL exception");
@@ -143,7 +148,7 @@ public class DatabaseController {
     public String ListMemberPayment() {
         String temp = null;
         try {
-            String query = "select * from PAYMENTS WHERE \"mem_id\" = '" + member_ID + "'";
+            String query = "select * from ENTERPRISE.PAYMENTS WHERE \"mem_id\" = '" + member_ID + "'";
             select(query);
             temp = (makeTable(rsToList()));
         } catch (SQLException ex) {
@@ -155,7 +160,7 @@ public class DatabaseController {
     public String ListMemberClaims() {
         String temp = null;
         try {
-            String query = "select * from PAYMENTS WHERE \"mem_id\" = '" + member_ID + "'";
+            String query = "select * from ENTERPRISE.CLAIMS WHERE \"mem_id\" = '" + member_ID + "'";
             select(query);
             temp = (makeTable(rsToList()));
         } catch (SQLException ex) {
@@ -368,10 +373,11 @@ public class DatabaseController {
         return updated;
     }
 
+
     public Boolean chargeFee(String id) {
 
         Boolean charged = false;
-        String query = "select * from members where \"id\"= '" + id + "' and \"status\" ='APPROVED' and \"dor\" <='" + today + "'";
+        String query = "SELECT * FROM Enterprise.Members WHERE \"id\" LIKE '" + id + "' AND \"status\" LIKE 'APPROVED' and \"dor\" <='" + today + "'";
 
         try {
             select(query);
@@ -384,6 +390,7 @@ public class DatabaseController {
         }
         return charged;
     }
+
 
     private void updateBalance(String username, double amount) {
 
@@ -402,15 +409,15 @@ public class DatabaseController {
         }
     }
 
-    private double calcLumpsum() {
+  private double calcLumpsum() {
 
         double fee = 0;
         double total = 0;
         double count = 0;
 
         df.setRoundingMode(RoundingMode.FLOOR);
-        String queryCount = "select count(*) from members";
-        String querySum = "select sum(\"amount\") from claims where \"status\" ='APPROVED' and \"date\" between '" + startOfYear + "' and '" + endOfYear + "'";
+        String queryCount = "SELECT COUNT(*) from MEMBERS";
+        String querySum = "SELECT SUM(\"amount\") FROM Enterprise.Claims WHERE \"status\" LIKE 'APPROVED' AND \"date\" BETWEEN '" + startOfYear + "' AND '" + endOfYear + "'";
 
         try {
             select(queryCount);
