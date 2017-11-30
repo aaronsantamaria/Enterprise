@@ -126,17 +126,12 @@ public class DatabaseController {
     public Double CheckBalance() {
         Double memBalance = null;
         try {
-            String query = "select id, balance from MEMBERS";
+            String query = "SELECT \"balance\" FROM ENTERPRISE.MEMBERS WHERE \"id\" LIKE '"+member_ID+"'";
 
             statement = connection.createStatement();
             resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
-                String id = resultSet.getString("id");
-                Double balance = resultSet.getDouble("balance");
-                if (id == member_ID) {
-                    memBalance = balance;
-                }
-
+                memBalance = resultSet.getDouble("balance");
             }
         } catch (SQLException ex) {
             System.out.println("SQL exception");
