@@ -142,9 +142,9 @@ public class UserServlet extends HttpServlet {
                 
                 break;
             case "newpayment":
-                double payamount = Double.parseDouble(request.getParameter("amount"));
-                String paytype = request.getParameter("type");
-                if (db.NewPayment(paytype, payamount)) {
+                double payamount = Double.parseDouble(request.getParameter("balance"));
+                //String paytype = request.getParameter("type");
+                if (db.NewPayment("FEE", payamount)) {
                     htmlmessage = "Payment has been added";
                 } else {
                     htmlmessage = "error, payment has not been added";

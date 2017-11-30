@@ -100,12 +100,19 @@ public class DatabaseController {
     public Boolean NewPayment(String type, double amount) {
         long millis = System.currentTimeMillis();
         Date date = new Date(millis);
-        
+        Double payment = 0.00;
+        int newID = 0;
         Time time = new Time(millis);
 
         try {
+            select("SELECT MAX(\"id\") FROM ENTERPRISE.PAYMENTS");
+            while(resultSet.next()){
+                newID = resultSet.getInt(1) +1;
+            }
+            
+            
             ps = connection.prepareStatement("INSERT INTO ENTERPRISE.PAYMENTS VALUES (?,?,?,?,?,?)", PreparedStatement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, PaymentID);
+            ps.setInt(1, newID);
             ps.setString(2, member_ID);
             ps.setString(3, type);
             ps.setDouble(4, amount);
@@ -114,8 +121,9 @@ public class DatabaseController {
             ps.execute();
             ps.close();
             System.out.println("payment added.");
-            PaymentID++;
-            updateBalance(member_ID, (CheckBalance() - amount));
+            //PaymentID++;
+            payment = payment - amount;
+            updateBalance(member_ID, payment);
             return true;
         } catch (SQLException ex) {
             System.out.println("SQL exception");
