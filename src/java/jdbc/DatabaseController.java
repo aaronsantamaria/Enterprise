@@ -109,8 +109,8 @@ public class DatabaseController {
             ps.setString(2, member_ID);
             ps.setString(3, type);
             ps.setDouble(4, amount);
-            ps.setDate(5, date);
-            ps.setTime(6, time);
+            ps.setString(5, today);
+            ps.setString(6, time.toString());
             ps.execute();
             ps.close();
             System.out.println("payment added.");
@@ -126,17 +126,12 @@ public class DatabaseController {
     public Double CheckBalance() {
         Double memBalance = null;
         try {
-            String query = "select id, balance from MEMBERS";
+            String query = "SELECT \"balance\" FROM ENTERPRISE.MEMBERS WHERE \"id\" LIKE '"+member_ID+"'";
 
             statement = connection.createStatement();
             resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
-                String id = resultSet.getString("id");
-                Double balance = resultSet.getDouble("balance");
-                if (id == member_ID) {
-                    memBalance = balance;
-                }
-
+                memBalance = resultSet.getDouble("balance");
             }
         } catch (SQLException ex) {
             System.out.println("SQL exception");
@@ -288,7 +283,7 @@ public class DatabaseController {
     public Boolean processClaim(int id, String status) {
 
         Boolean processed = false;
-        String query = "update claims set \"status\" = '" + status + "' where \"id\" =" + id;
+        String query = "UPDATE ENTERPRISE.CLAIMS SET \"status\" = '" + status + "' WHERE \"id\" LIKE" + id;
 
         try {
             statement = connection.createStatement();
@@ -396,7 +391,7 @@ public class DatabaseController {
 
         PreparedStatement ps = null;
 
-        String queryUpdate = "update members set \"balance\" =(\"balance\"+" + amount + ") where \"id\"='" + username + "'";
+        String queryUpdate = "UPDATE ENTERPRISE.MEMBERS SET \"balance\" = (\"balance\"+"+amount+") WHERE \"id\" LIKE '"+username+"'";
 
         try {
             ps = connection.prepareStatement(queryUpdate);
